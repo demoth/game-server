@@ -20,6 +20,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     public WebSocketHandler createHandler() {
-        return new Handler();
+        return new ActionHandler();
     }
 }
