@@ -1,8 +1,8 @@
 package org.demoth.aworlds.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.demoth.aworlds.server2.api.Request;
-import org.demoth.aworlds.server2.api.RequestType;
+import org.demoth.aworlds.server2.api.Message;
+import org.demoth.aworlds.server2.api.MessageType;
 
 import javax.websocket.DeploymentException;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class TestClient {
         ObjectMapper mapper = new ObjectMapper();
         TestEndpoint te = new TestEndpoint(new URI("ws://localhost:8080/action"));
         te.addMessageHandler(message -> System.out.println("Client received message: " + message));
-        Request login = new Request(RequestType.LOGIN, new String[]{"demoth", "cadaver"});
+        Message login = new Message(MessageType.LOGIN, "demoth", "cadaver");
         te.sendMessage(mapper.writeValueAsString(login));
     }
 }
