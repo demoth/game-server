@@ -12,11 +12,18 @@ import java.util.Map;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UserService {
     private final Map<String, User> currentUsers = new HashMap<>();
+
     public User login(String user, String pass) {
+        if ("demoth".equals(user))
+            return new User();
         return null;
     }
 
-    public void register(User user, String id) {
+    public String[] register(User user, String id) {
         currentUsers.put(id, user);
+        String[] chars = new String[]{
+                "Totemy [Templar lvl 12]",
+                "ArkWi4ka [Witch lvl 2]"};
+        return chars;
     }
 }

@@ -10,8 +10,10 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import static org.demoth.aworlds.server2.api.MessageType.ERROR;
-import static org.demoth.aworlds.server2.api.MessageType.LOGGED_IN;
+import java.util.List;
+import java.util.Set;
+
+import static org.demoth.aworlds.server2.api.MessageType.*;
 
 public class MessageHandler extends TextWebSocketHandler {
 
@@ -35,8 +37,8 @@ public class MessageHandler extends TextWebSocketHandler {
                 case LOGIN:
                     User user = userService.login(request.params[0], request.params[1]);
                     if (user != null) {
-                        userService.register(user, session.getId());
-                        session.sendMessage(new Message(LOGGED_IN).toText(mapper));
+                        String[] characters = userService.register(user, session.getId());
+                        session.sendMessage(new Message(LOGGED_IN, characters).toText(mapper));
                         LOG.debug("User joined: " + session.getId());
                     } else {
                         LOG.debug("Wrong user/pass");
