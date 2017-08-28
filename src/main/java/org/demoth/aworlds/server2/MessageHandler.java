@@ -2,6 +2,8 @@ package org.demoth.aworlds.server2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.demoth.aworlds.server2.api.Message;
+import org.demoth.aworlds.server2.model.Location;
+import org.demoth.aworlds.server2.model.Player;
 import org.demoth.aworlds.server2.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +12,7 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.List;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.demoth.aworlds.server2.api.MessageType.*;
 
@@ -22,7 +23,12 @@ public class MessageHandler extends TextWebSocketHandler {
     @Autowired
     UserService userService;
 
+    @Autowired
+    ActorService actorService;
+
     final ObjectMapper mapper;
+
+    ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 
     public MessageHandler() {
         mapper = new ObjectMapper();
@@ -39,11 +45,27 @@ public class MessageHandler extends TextWebSocketHandler {
                     if (user != null) {
                         String[] characters = userService.register(user, session.getId());
                         session.sendMessage(new Message(LOGGED_IN, characters).toText(mapper));
-                        LOG.debug("User joined: " + session.getId());
+                        LOG.debug("User logged in: " + session.getId());
                     } else {
                         LOG.debug("Wrong user/pass");
                         session.sendMessage(new Message(ERROR, "Wrong user/pass").toText(mapper));
                     }
+                    break;
+                case JOIN:
+                    Player character;
+                    if (request.params.length == 1)
+                        character = actorService.loadCharacter(request.params[0]);
+                    else
+                        character = actorService.createCharacter(request.params);
+                    if (character.getLocation() == null)
+                        actorService.setLocation(character);
+                    session.sendMessage(new Message(JOINED, encodeLocation(character.getLocation())).toText(mapper));
+                    break;
+
+                case COMMAND:
+                    Player p = players.get(session.getId());
+                    if (p != null)
+                        p.enqueue(request);
                     break;
                 case TEXT:
                     LOG.debug(request.params[0]);
@@ -51,5 +73,16 @@ public class MessageHandler extends TextWebSocketHandler {
         } catch (Exception e) {
             LOG.error("Error while processing message", e);
         }
+    }
+
+    private static String[] encodeLocation(Location location) {
+        // todo sent only visible tiles
+        String[] result = new String[location.getTerrain().length];
+        char[][] terrain = location.getTerrain();
+        for (int i = 0; i < terrain.length; i++) {
+            char[] chars = terrain[i];
+            result[i] = new String(chars);
+        }
+        return result;
     }
 }

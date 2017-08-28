@@ -6,7 +6,9 @@ public enum MessageType {
 
     // from client
     LOGIN, // user, pass
-    JOIN, // character_d
+    JOIN, // character_id
+
+    COMMAND, // character_id, type, params
 
     // from server
     LOGGED_IN, // characters
