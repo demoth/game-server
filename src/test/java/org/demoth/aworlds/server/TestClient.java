@@ -43,18 +43,19 @@ public class TestClient {
             try {
                 Message msg = mapper.readValue(message, Message.class);
                 switch (msg.type) {
-
                     case TEXT:
                         LOG.debug(msg.params[0]);
                         break;
                     case LOGGED_IN:
-                        LOG.debug("Joined! Chars: " + Arrays.toString(msg.params));
+                        LOG.debug("Logged in! Chars: " + Arrays.toString(msg.params));
                         endpoint.sendMessage(mapper.writeValueAsString(new Message(MessageType.JOIN, msg.params[0])));
                         break;
                     case ERROR:
                         LOG.error("Error: " + msg.params[0]);
                         done = true;
                         break;
+                    case JOINED:
+                        LOG.debug("Joined: " + message);
                 }
             } catch (Exception e) {
                 LOG.error("Error: ", e);

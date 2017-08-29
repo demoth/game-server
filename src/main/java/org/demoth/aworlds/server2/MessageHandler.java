@@ -53,12 +53,16 @@ public class MessageHandler extends TextWebSocketHandler {
                     break;
                 case JOIN:
                     Player character;
-                    if (request.params.length == 1)
+                    if (request.params.length == 1) {
                         character = actorService.loadCharacter(request.params[0]);
-                    else
+
+                    } else {
                         character = actorService.createCharacter(request.params);
+                    }
+                    LOG.debug("Character joined " + character);
                     if (character.getLocation() == null)
                         actorService.setLocation(character);
+                    LOG.debug("Location loaded " + character.getLocation());
                     session.sendMessage(new Message(JOINED, encodeLocation(character.getLocation())).toText(mapper));
                     break;
 
