@@ -31,4 +31,8 @@ public class Player extends Actor {
     public void enqueue(Message command) {
         commands.add(command);
     }
+
+    public boolean idle() {
+        return commands.isEmpty();
+    }
 }

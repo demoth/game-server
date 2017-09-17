@@ -13,5 +13,6 @@ public enum MessageType {
     // from server
     LOGGED_IN, // characters
     ERROR, // error_message
-    JOINED // terrain_and_objects_around_the_character
+    JOINED, // terrain_and_objects_around_the_character
+    UPDATE, // game update
 }

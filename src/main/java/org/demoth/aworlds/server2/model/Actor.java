@@ -6,6 +6,8 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 public class Actor {
+    private String name;
+
     public Actor() {
         id = UUID.randomUUID().toString();
         actors = new ArrayList<>();
@@ -48,7 +50,16 @@ public class Actor {
     @Override
     public String toString() {
         return "Actor{" +
-                "id='" + id + '\'' +
+                "name='" + name + '\'' +
+                ", id='" + id + '\'' +
                 '}';
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }
