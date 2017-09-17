@@ -18,7 +18,7 @@ public class TestClient {
 
     public static void main(String[] args) throws URISyntaxException, IOException, DeploymentException, InterruptedException {
         ObjectMapper mapper = new ObjectMapper();
-        TestEndpoint te = new TestEndpoint(new URI("ws://localhost:8080/action"));
+        TestEndpoint te = new TestEndpoint(new URI("ws://localhost:8080/action.json"));
         TestHandler tester = new TestHandler(te);
         te.addMessageHandler(tester);
         Message login = new Message(MessageType.LOGIN, "demoth", "cadaver");

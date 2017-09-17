@@ -5,6 +5,7 @@ public class Location extends Actor {
     private Location location;
 
     public Location() {
+        // todo remove
         String[] location = new String[6];
         location[0] = "####################";
         location[1] = "#....#####.#########";

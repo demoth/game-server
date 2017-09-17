@@ -1,11 +1,14 @@
 package org.demoth.aworlds.server2.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.TreeSet;
 import java.util.UUID;
 
 public class Actor {
     public Actor() {
         id = UUID.randomUUID().toString();
+        actors = new ArrayList<>();
     }
 
     public String getId() {
@@ -28,7 +31,11 @@ public class Actor {
 
     private Collection<Actor> actors;
 
-    public void update(Collection<String> visited) {
+    public void update() {
+        update(new TreeSet<>());
+    }
+
+    private void update(Collection<String> visited) {
         for (Actor actor : actors) {
             if (!visited.add(actor.id)) {
                 return;

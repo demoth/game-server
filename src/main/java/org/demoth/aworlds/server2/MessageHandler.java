@@ -8,6 +8,7 @@ import org.demoth.aworlds.server2.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -26,12 +27,22 @@ public class MessageHandler extends TextWebSocketHandler {
     @Autowired
     ActorService actorService;
 
+    @Autowired
+    GameWorker worker;
+
     final ObjectMapper mapper;
 
     ConcurrentHashMap<String, Player> players = new ConcurrentHashMap<>();
 
     public MessageHandler() {
         mapper = new ObjectMapper();
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        super.afterConnectionClosed(session, status);
+        LOG.info("Disconnected: " + session.getId());
+        players.remove(session.getId());
     }
 
     @Override
@@ -51,19 +62,23 @@ public class MessageHandler extends TextWebSocketHandler {
                         session.sendMessage(new Message(ERROR, "Wrong user/pass").toText(mapper));
                     }
                     break;
+
                 case JOIN:
                     Player character;
                     if (request.params.length == 1) {
                         character = actorService.loadCharacter(request.params[0]);
-
                     } else {
                         character = actorService.createCharacter(request.params);
                     }
+                    players.put(session.getId(), character);
                     LOG.debug("Character joined " + character);
-                    if (character.getLocation() == null)
+                    if (character.getLocation() == null) {
                         actorService.setLocation(character);
+                    }
+                    character.getLocation().getActors().add(character);
                     LOG.debug("Location loaded " + character.getLocation());
                     session.sendMessage(new Message(JOINED, encodeLocation(character.getLocation())).toText(mapper));
+                    worker.runLocation(character.getLocation());
                     break;
 
                 case COMMAND:
@@ -71,6 +86,7 @@ public class MessageHandler extends TextWebSocketHandler {
                     if (p != null)
                         p.enqueue(request);
                     break;
+
                 case TEXT:
                     LOG.debug(request.params[0]);
             }
