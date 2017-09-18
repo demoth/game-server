@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Player extends Actor {
     ConcurrentLinkedQueue<Message> commands = new ConcurrentLinkedQueue<>();
 
+    ConcurrentLinkedQueue<Message> results = new ConcurrentLinkedQueue<>();
+
     private Location location;
 
     private WebSocketSession session;
@@ -28,8 +30,12 @@ public class Player extends Actor {
         this.location = location;
     }
 
-    public void enqueue(Message command) {
+    public void enqueueRequest(Message command) {
         commands.add(command);
+    }
+
+    public void enqueueResponse(Message response) {
+        results.add(response);
     }
 
     public boolean idle() {

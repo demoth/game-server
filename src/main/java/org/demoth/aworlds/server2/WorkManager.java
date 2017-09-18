@@ -1,5 +1,6 @@
 package org.demoth.aworlds.server2;
 
+import org.demoth.aworlds.server2.api.Message;
 import org.demoth.aworlds.server2.model.Location;
 import org.demoth.aworlds.server2.model.Player;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -34,7 +36,8 @@ public class WorkManager {
                         break;
                     }
                 }
-                location.update();
+                Collection<Message> updates = location.update();
+                filterUpdates(updates, location.getPlayers());
                 long sleep = location.getSleepTime(allPlayersReady);
                 try {
                     Thread.sleep(sleep);
@@ -47,5 +50,15 @@ public class WorkManager {
         instances.put(location, worker);
         worker.setName("Location worker: " + location.getName());
         worker.start();
+    }
+
+    /*
+     * For each player filter updates and put them to the send queue.
+     */
+    private void filterUpdates(Collection<Message> updates, Collection<Player> players) {
+        // todo implement actual filtering
+        updates.forEach(message ->
+                players.forEach(player ->
+                        player.enqueueResponse(message)));
     }
 }

@@ -86,7 +86,7 @@ public class MessageHandler extends TextWebSocketHandler {
                 case COMMAND:
                     Player p = players.get(session.getId());
                     if (p != null)
-                        p.enqueue(request);
+                        p.enqueueRequest(request);
                     break;
 
                 case TEXT:

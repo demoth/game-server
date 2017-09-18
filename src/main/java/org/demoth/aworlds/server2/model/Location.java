@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Location extends Actor {
     private char[][] terrain;
     private Location location;
+    // players are kept to manage connection
     private Collection<Player> players = new ConcurrentLinkedQueue<>();
 
     public Location() {

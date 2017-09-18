@@ -1,5 +1,7 @@
 package org.demoth.aworlds.server2.model;
 
+import org.demoth.aworlds.server2.api.Message;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeSet;
@@ -33,16 +35,18 @@ public class Actor {
 
     private Collection<Actor> actors;
 
-    public void update() {
-        update(new TreeSet<>());
+    public Collection<Message> update() {
+        Collection<Message> result = new ArrayList<>();
+        update(new TreeSet<>(), result);
+        return result;
     }
 
-    private void update(Collection<String> visited) {
+    protected void update(Collection<String> visited, Collection<Message> result) {
         for (Actor actor : actors) {
             if (!visited.add(actor.id)) {
                 return;
             } else {
-                actor.update(visited);
+                actor.update(visited, result);
             }
         }
     }
