@@ -3,12 +3,14 @@ package org.demoth.aworlds.server2.model;
 import org.demoth.aworlds.server2.api.Message;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Player extends Actor {
     ConcurrentLinkedQueue<Message> commands = new ConcurrentLinkedQueue<>();
 
-    ConcurrentLinkedQueue<Message> results = new ConcurrentLinkedQueue<>();
+    BlockingQueue<Message> results = new LinkedBlockingQueue<>();
 
     private Location location;
 
@@ -40,5 +42,9 @@ public class Player extends Actor {
 
     public boolean idle() {
         return commands.isEmpty();
+    }
+
+    public Message getUpdate() throws InterruptedException {
+        return results.take();
     }
 }

@@ -28,7 +28,10 @@ public class MessageHandler extends TextWebSocketHandler {
     ActorService actorService;
 
     @Autowired
-    WorkManager workManager;
+    LocationWorkerManager locationWorkerManager;
+
+    @Autowired
+    UpdateSenderManager updateSenderManager;
 
     final ObjectMapper mapper;
 
@@ -43,7 +46,8 @@ public class MessageHandler extends TextWebSocketHandler {
         super.afterConnectionClosed(session, status);
         Player player = players.get(session.getId());
         player.getLocation().removePlayer(player);
-        players.remove(player);
+        players.remove(session.getId());
+        updateSenderManager.stopSendingUpdates(player);
         LOG.info("Disconnected: {}", session.getId());
     }
 
@@ -80,7 +84,8 @@ public class MessageHandler extends TextWebSocketHandler {
                     character.getLocation().add(character);
                     LOG.debug("Location loaded {}", character.getLocation());
                     session.sendMessage(new Message(JOINED, encodeLocation(character.getLocation())).toText(mapper));
-                    workManager.runLocation(character.getLocation());
+                    locationWorkerManager.runLocation(character.getLocation());
+                    updateSenderManager.startSendingUpdates(character);
                     break;
 
                 case COMMAND:
