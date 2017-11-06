@@ -4,9 +4,7 @@ import org.demoth.aworlds.server2.api.LongPropertiesEnum;
 import org.demoth.aworlds.server2.api.Message;
 import org.demoth.aworlds.server2.api.MessageType;
 
-import java.security.acl.LastOwnerException;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 public class Actor {
     private String name;
@@ -15,6 +13,12 @@ public class Actor {
 
     // updates accumulated during current frame
     private Collection<Message> updates = new ArrayList<>();
+
+    public Actor(String name, Callback update) {
+        this();
+        this.name = name;
+        onUpdate = update;
+    }
 
     public Actor() {
         // todo use safe generator
@@ -42,21 +46,26 @@ public class Actor {
 
     private Collection<Actor> actors;
 
-    protected void updateTree(Collection<String> visited, Collection<Message> result) {
+    void updateTree(Collection<String> visited) {
         if (onUpdate != null) {
             onUpdate.run();
-            result.addAll(getUpdates());
         }
         for (Actor actor : actors) {
-            if (!visited.add(actor.id)) {
-                return;
-            } else {
-//                if (actor.onUpdate != null) {
-//                    actor.onUpdate.run();
-//                    result.addAll(actor.getUpdates());
-//                }
-                actor.updateTree(visited, result);
-            }
+            if (visited.add(actor.id))
+                actor.updateTree(visited);
+        }
+    }
+
+    public void collectResults(Collection<Message> results) {
+        collectResults(results, new TreeSet<>());
+    }
+
+    private void collectResults(Collection<Message> results, Collection<String> visited) {
+        results.addAll(getUpdates());
+        clearUpdates();
+        for (Actor actor : actors) {
+            if (visited.add(actor.id))
+                actor.collectResults(results, visited);
         }
     }
 
@@ -76,7 +85,7 @@ public class Actor {
         return name;
     }
 
-    public Collection<Message> getUpdates() {
+    private Collection<Message> getUpdates() {
         return updates;
     }
 
@@ -91,5 +100,9 @@ public class Actor {
 
     public void clearUpdates() {
         updates.clear();
+    }
+
+    public void addActor(Actor a) {
+        getActors().add(a);
     }
 }

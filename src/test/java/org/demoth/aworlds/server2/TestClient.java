@@ -1,4 +1,4 @@
-package org.demoth.aworlds.server;
+package org.demoth.aworlds.server2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.demoth.aworlds.server2.api.Message;

@@ -1,4 +1,4 @@
-package org.demoth.aworlds.server;
+package org.demoth.aworlds.server2;
 
 import javax.websocket.*;
 import java.io.IOException;
