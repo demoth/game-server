@@ -28,7 +28,7 @@ public class LocationWorkerManager {
                     LOG.debug("No players in {}, exiting...", location.getName());
                     return;
                 }
-                Collection<Message> updates = location.update();
+                Collection<Message> updates = location.updateLocation();
                 // todo move to other thread
                 filterUpdates(updates, location.getPlayers());
                 boolean allPlayersReady = location.getPlayers().stream().noneMatch(Player::idle);

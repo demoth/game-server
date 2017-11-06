@@ -1,11 +1,14 @@
 package org.demoth.aworlds.server2.model;
 
+import org.demoth.aworlds.server2.api.Message;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Location extends Actor {
     private char[][] terrain;
-    private Location location;
     // players are kept to manage connection
     private Collection<Player> players = new ConcurrentLinkedQueue<>();
 
@@ -26,20 +29,18 @@ public class Location extends Actor {
         }
     }
 
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
     public char[][] getTerrain() {
         return terrain;
     }
 
     public Collection<Player> getPlayers() {
         return players;
+    }
+
+    public Collection<Message> updateLocation() {
+        Collection<Message> result = new ArrayList<>();
+        updateTree(new TreeSet<>(), result);
+        return result;
     }
 
     public long getSleepTime(boolean allPlayersReady) {
