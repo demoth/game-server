@@ -8,9 +8,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Player extends Actor {
-    ConcurrentLinkedQueue<Message> commands = new ConcurrentLinkedQueue<>();
 
-    BlockingQueue<Message> results = new LinkedBlockingQueue<>();
+    private ConcurrentLinkedQueue<Message> commands = new ConcurrentLinkedQueue<>();
+
+    private BlockingQueue<Message> results = new LinkedBlockingQueue<>();
 
     private Location location;
 

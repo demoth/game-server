@@ -56,13 +56,9 @@ public class Actor {
         }
     }
 
-    public void collectResults(Collection<Message> results) {
-        collectResults(results, new TreeSet<>());
-    }
-
-    private void collectResults(Collection<Message> results, Collection<String> visited) {
-        results.addAll(getUpdates());
-        clearUpdates();
+    protected void collectResults(Collection<Message> results, Collection<String> visited) {
+        results.addAll(updates);
+        updates.clear();
         for (Actor actor : actors) {
             if (visited.add(actor.id))
                 actor.collectResults(results, visited);
@@ -96,10 +92,6 @@ public class Actor {
 
     public Long getLong(LongPropertiesEnum key) {
         return longProps.get(key);
-    }
-
-    public void clearUpdates() {
-        updates.clear();
     }
 
     public void addActor(Actor a) {

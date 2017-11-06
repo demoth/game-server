@@ -37,6 +37,10 @@ public class Location extends Actor {
         return players;
     }
 
+    private void collectResults(Collection<Message> results) {
+        collectResults(results, new TreeSet<>());
+    }
+
     public Collection<Message> updateLocation() {
         Collection<Message> result = new ArrayList<>();
         updateTree(new TreeSet<>());

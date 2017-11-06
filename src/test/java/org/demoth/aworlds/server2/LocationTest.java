@@ -12,6 +12,7 @@ import static java.lang.Math.min;
 import static org.demoth.aworlds.server2.api.LongPropertiesEnum.*;
 
 public class LocationTest {
+
     @Test
     public void testSimpleLocation() {
         Location testLocation = new Location();
@@ -20,7 +21,6 @@ public class LocationTest {
         cat.setLong(I_HEALTH, 100L);
         cat.setLong(I_MAX_HEALTH, 200L);
         cat.setLong(I_REGEN_HEALTH, 10L);
-        cat.clearUpdates();
         cat.onUpdate = () -> {
             Long current = cat.getLong(I_HEALTH);
             Long max = cat.getLong(I_MAX_HEALTH);
@@ -32,7 +32,7 @@ public class LocationTest {
         testLocation.add(cat);
         Collection<Message> results = testLocation.updateLocation();
         System.out.println(results);
-        Assert.assertEquals(1, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals(110L, cat.getLong(I_HEALTH).longValue());
     }
 
@@ -44,7 +44,6 @@ public class LocationTest {
         cat.setLong(I_HEALTH, 100L);
         cat.setLong(I_MAX_HEALTH, 200L);
         cat.setLong(I_REGEN_HEALTH, 10L);
-        cat.clearUpdates();
         cat.addActor(new Actor("hpregen", () -> {
             Long current = cat.getLong(I_HEALTH);
             Long max = cat.getLong(I_MAX_HEALTH);
@@ -56,7 +55,7 @@ public class LocationTest {
         testLocation.add(cat);
         Collection<Message> results = testLocation.updateLocation();
         System.out.println(results);
-        Assert.assertEquals(1, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals(110L, cat.getLong(I_HEALTH).longValue());
     }
 }

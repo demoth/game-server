@@ -5,5 +5,8 @@ public enum LongPropertiesEnum {
     I_MAX_HEALTH,
     I_REGEN_HEALTH,
     I_X,
-    I_Y
+    I_Y,
+    I_SPEED,
+    I_MAX_SPEED,
+    I_REGEN_SPEED
 }
