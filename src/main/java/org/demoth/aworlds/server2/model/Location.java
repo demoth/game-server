@@ -1,11 +1,16 @@
 package org.demoth.aworlds.server2.model;
 
-import org.demoth.aworlds.server2.api.Message;
+import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static java.util.stream.Collectors.toList;
+import static org.demoth.aworlds.server2.api.LongPropertiesEnum.X;
+import static org.demoth.aworlds.server2.api.LongPropertiesEnum.Y;
 
 public class Location extends Actor {
     private char[][] terrain;
@@ -37,15 +42,28 @@ public class Location extends Actor {
         return players;
     }
 
-    private void collectResults(Collection<Message> results) {
-        collectResults(results, new TreeSet<>());
+    public Collection<MapLike> updateLocation() {
+        Collection<MapLike> result = new ArrayList<>();
+        // invoke onUpdate() callback on the whole tree
+        updateTree(new TreeSet<>());
+        // process requests for actors
+        performCommands();
+        // get the results of above changes
+        collectResults(result, new TreeSet<>());
+        result.addAll(toAppearMessage(getActors()));
+        return result;
     }
 
-    public Collection<Message> updateLocation() {
-        Collection<Message> result = new ArrayList<>();
-        updateTree(new TreeSet<>());
-        collectResults(result);
-        return result;
+    private Collection<MapLike> toAppearMessage(Collection<Actor> actors) {
+        return actors.stream().map(actor -> new AppearData(actor.getType(), actor.getId(), actor.getLong(X), actor.getLong(Y))).collect(toList());
+    }
+
+    private void performCommands() {
+        //for (Actor actor : getActors()) {
+        // for each command:
+        //  - discard if requirements are not matched
+        //  - perform
+        //}
     }
 
     public long getSleepTime(boolean allPlayersReady) {

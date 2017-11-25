@@ -1,6 +1,6 @@
 package org.demoth.aworlds.server2;
 
-import org.demoth.aworlds.server2.api.Message;
+import org.demoth.aworlds.server2.api.messaging.MapLike;
 import org.demoth.aworlds.server2.model.Location;
 import org.demoth.aworlds.server2.model.Player;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class LocationWorkerManager {
                     LOG.debug("No players in {}, exiting...", location.getName());
                     return;
                 }
-                Collection<Message> updates = location.updateLocation();
+                Collection<MapLike> updates = location.updateLocation();
                 // todo move to other thread
                 filterUpdates(updates, location.getPlayers());
                 boolean allPlayersReady = location.getPlayers().stream().noneMatch(Player::idle);
@@ -56,7 +56,7 @@ public class LocationWorkerManager {
     /*
      * For each player filter updates and put them to the send queue.
      */
-    private void filterUpdates(Collection<Message> updates, Collection<Player> players) {
+    private void filterUpdates(Collection<MapLike> updates, Collection<Player> players) {
         // todo implement actual filtering
         updates.forEach(message ->
                 players.forEach(player ->

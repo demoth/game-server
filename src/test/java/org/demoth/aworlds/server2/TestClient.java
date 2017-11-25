@@ -1,8 +1,12 @@
 package org.demoth.aworlds.server2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.demoth.aworlds.server2.api.Message;
-import org.demoth.aworlds.server2.api.MessageType;
+import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.MessageParser;
+import org.demoth.aworlds.server2.api.messaging.fromClient.JoinMessage;
+import org.demoth.aworlds.server2.api.messaging.fromClient.LoginMessage;
+import org.demoth.aworlds.server2.api.messaging.fromServer.JoinedMessage;
+import org.demoth.aworlds.server2.api.messaging.fromServer.LoggedInMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +14,7 @@ import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.Map;
 
 public class TestClient {
 
@@ -21,8 +25,7 @@ public class TestClient {
         TestEndpoint te = new TestEndpoint(new URI("ws://localhost:8080/action.json"));
         TestHandler tester = new TestHandler(te);
         te.addMessageHandler(tester);
-        Message login = new Message(MessageType.LOGIN, "demoth", "cadaver");
-        te.sendMessage(mapper.writeValueAsString(login));
+        te.sendMessage(mapper.writeValueAsString(new LoginMessage("demoth", "cadaver").toMap()));
         while (!tester.done()) {
             Thread.sleep(100);
 
@@ -41,21 +44,16 @@ public class TestClient {
         @Override
         public void handleMessage(String message) {
             try {
-                Message msg = mapper.readValue(message, Message.class);
-                switch (msg.type) {
-                    case TEXT:
-                        LOG.debug(msg.params[0]);
-                        break;
-                    case LOGGED_IN:
-                        LOG.debug("Logged in! Chars: " + Arrays.toString(msg.params));
-                        endpoint.sendMessage(mapper.writeValueAsString(new Message(MessageType.JOIN, msg.params[0])));
-                        break;
-                    case ERROR:
-                        LOG.error("Error: " + msg.params[0]);
-                        done = true;
-                        break;
-                    case JOINED:
-                        LOG.debug("Joined: " + message);
+                Map map = mapper.readValue(message, Map.class);
+                LOG.debug("Received {}", map);
+                MapLike msg = MessageParser.fromMap(map);
+                if (msg instanceof LoggedInMessage) {
+                    LoggedInMessage loggedIn = (LoggedInMessage) msg;
+                    LOG.debug("Logged in! Chars: " + loggedIn.characters);
+                    endpoint.sendMessage(mapper.writeValueAsString(new JoinMessage(loggedIn.characters.stream().findAny().get()).toMap()));
+                } else if (msg instanceof JoinedMessage) {
+                    JoinedMessage joined = (JoinedMessage) msg;
+                    LOG.debug("Joined: " + joined);
                 }
             } catch (Exception e) {
                 LOG.error("Error: ", e);

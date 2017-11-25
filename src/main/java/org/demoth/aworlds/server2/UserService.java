@@ -5,7 +5,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -19,11 +21,11 @@ public class UserService {
         return null;
     }
 
-    public String[] register(User user, String id) {
+    public List<String> register(User user, String id) {
         currentUsers.put(id, user);
-        String[] chars = new String[]{
-                "Totemy [Templar lvl 12]",
-                "ArkWi4ka [Witch lvl 2]"};
+        ArrayList<String> chars = new ArrayList<>();
+        chars.add("Totemy [Templar lvl 12]");
+        chars.add("ArkWi4ka [Witch lvl 2]");
         return chars;
     }
 }

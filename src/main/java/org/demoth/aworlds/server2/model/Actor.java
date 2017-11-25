@@ -1,18 +1,24 @@
 package org.demoth.aworlds.server2.model;
 
 import org.demoth.aworlds.server2.api.LongPropertiesEnum;
-import org.demoth.aworlds.server2.api.Message;
-import org.demoth.aworlds.server2.api.MessageType;
+import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.fromServer.StateChangeData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.UUID;
 
 public class Actor {
-    private String name;
     public Callback onUpdate;
+    private String name;
     private EnumMap<LongPropertiesEnum, Long> longProps = new EnumMap<>(LongPropertiesEnum.class);
 
     // updates accumulated during current frame
-    private Collection<Message> updates = new ArrayList<>();
+    private Collection<MapLike> updates = new ArrayList<>();
+    private String type;
+    private String id;
+    private Collection<Actor> actors;
 
     public Actor(String name, Callback update) {
         this();
@@ -30,21 +36,9 @@ public class Actor {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Collection<Actor> getActors() {
         return actors;
     }
-
-    public void setActors(Collection<Actor> actors) {
-        this.actors = actors;
-    }
-
-    private String id;
-
-    private Collection<Actor> actors;
 
     void updateTree(Collection<String> visited) {
         if (onUpdate != null) {
@@ -56,7 +50,7 @@ public class Actor {
         }
     }
 
-    protected void collectResults(Collection<Message> results, Collection<String> visited) {
+    protected void collectResults(Collection<MapLike> results, Collection<String> visited) {
         results.addAll(updates);
         updates.clear();
         for (Actor actor : actors) {
@@ -73,21 +67,17 @@ public class Actor {
                 '}';
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
     }
 
-    private Collection<Message> getUpdates() {
-        return updates;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setLong(LongPropertiesEnum key, Long value) {
         Long oldValue = longProps.put(key, value);
-        updates.add(new Message(MessageType.UPDATE, id, key.name(), String.valueOf(oldValue), String.valueOf(value)));
+        updates.add(new StateChangeData(id, key.name(), String.valueOf(value)));
     }
 
     public Long getLong(LongPropertiesEnum key) {
@@ -96,5 +86,13 @@ public class Actor {
 
     public void addActor(Actor a) {
         getActors().add(a);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
