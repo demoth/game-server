@@ -16,11 +16,7 @@ public class ActorService {
 
     public void setLocation(Player character) {
         character.setLocation(new Location());
-        character.setLong(LongPropertiesEnum.X, 4L);
-        character.setLong(LongPropertiesEnum.Y, 7L);
-    }
-
-    public Player createCharacter(String[] params) {
-        return null;
+        character.setLong(LongPropertiesEnum.X, 3L);
+        character.setLong(LongPropertiesEnum.Y, 2L);
     }
 }

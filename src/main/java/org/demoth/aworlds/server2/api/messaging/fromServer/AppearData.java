@@ -22,8 +22,8 @@ public class AppearData extends MapLike {
         super(from);
         this.object_type = (String) from.get("object_type");
         this.id = (String) from.get("object_id");
-        this.x = Long.parseLong(from.get("x").toString());
-        this.y = Long.parseLong(from.get("y").toString());
+        this.x = Long.parseLong(from.get("X").toString());
+        this.y = Long.parseLong(from.get("Y").toString());
     }
 
     @Override
@@ -36,8 +36,8 @@ public class AppearData extends MapLike {
         Map<String, Object> result = super.toMap();
         result.put("object_type", object_type);
         result.put("object_id", id);
-        result.put("x", x);
-        result.put("y", y);
+        result.put("X", x);
+        result.put("Y", y);
         return result;
     }
 }

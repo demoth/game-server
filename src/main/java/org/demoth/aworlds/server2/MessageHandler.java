@@ -44,17 +44,6 @@ public class MessageHandler extends TextWebSocketHandler {
         mapper = new ObjectMapper();
     }
 
-    private static String[] encodeLocation(Location location) {
-        // todo sent only visible tiles
-        String[] result = new String[location.getTerrain().length];
-        char[][] terrain = location.getTerrain();
-        for (int i = 0; i < terrain.length; i++) {
-            char[] chars = terrain[i];
-            result[i] = new String(chars);
-        }
-        return result;
-    }
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         super.afterConnectionClosed(session, status);

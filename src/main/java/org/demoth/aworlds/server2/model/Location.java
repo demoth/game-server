@@ -13,7 +13,6 @@ import static org.demoth.aworlds.server2.api.LongPropertiesEnum.X;
 import static org.demoth.aworlds.server2.api.LongPropertiesEnum.Y;
 
 public class Location extends Actor {
-    private char[][] terrain;
     // players are kept to manage connection
     private Collection<Player> players = new ConcurrentLinkedQueue<>();
 
@@ -21,21 +20,25 @@ public class Location extends Actor {
         // todo remove
         int size = 6;
         setName("Test location");
-        String[] location = new String[size];
-        location[0] = "####################";
-        location[1] = "#....#####.#########";
-        location[2] = "##....#.##........##";
-        location[3] = "##....##....###...##";
-        location[4] = "#.##.........##...##";
-        location[5] = "####################";
-        terrain = new char[size][];
-        for (int i = 0; i < size; i++) {
-            terrain[i] = location[i].toCharArray();
+        char[][] location = new char[size][];
+        location[0] = "####################".toCharArray();
+        location[1] = "#....#####.#########".toCharArray();
+        location[2] = "##....#.##........##".toCharArray();
+        location[3] = "##....##....###...##".toCharArray();
+        location[4] = "#.##.........##...##".toCharArray();
+        location[5] = "####################".toCharArray();
+        for (int y = 0; y < size; y++) {
+            char[] chars = location[y];
+            for (int x = 0; x < chars.length; x++) {
+                char c = chars[x];
+                Actor tile = new Actor();
+                tile.setLong(X, (long) x);
+                tile.setLong(Y, (long) y);
+                tile.setType(c == '#' ? "WALL" : "FLOOR");
+                getActors().add(tile);
+                // todo appear!
+            }
         }
-    }
-
-    public char[][] getTerrain() {
-        return terrain;
     }
 
     public Collection<Player> getPlayers() {
