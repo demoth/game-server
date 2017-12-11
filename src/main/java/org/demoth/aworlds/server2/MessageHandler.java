@@ -1,13 +1,11 @@
 package org.demoth.aworlds.server2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.demoth.aworlds.server2.api.messaging.MapLike;
-import org.demoth.aworlds.server2.api.messaging.MessageParser;
+import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.api.messaging.fromClient.JoinMessage;
 import org.demoth.aworlds.server2.api.messaging.fromClient.LoginMessage;
 import org.demoth.aworlds.server2.api.messaging.fromServer.JoinedMessage;
 import org.demoth.aworlds.server2.api.messaging.fromServer.LoggedInMessage;
-import org.demoth.aworlds.server2.model.Location;
 import org.demoth.aworlds.server2.model.Player;
 import org.demoth.aworlds.server2.model.User;
 import org.slf4j.Logger;
@@ -20,7 +18,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.demoth.aworlds.server2.api.LongPropertiesEnum.X;
@@ -55,17 +52,16 @@ public class MessageHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {
         LOG.debug("Received: {} from {}", message.getPayload(), session.getId());
         try {
-            Map map = mapper.readValue(message.getPayload().toString(), Map.class);
-            MapLike request = MessageParser.fromMap(map);
+            Message request = mapper.readValue(message.getPayload().toString(), Message.class);
             if (request instanceof LoginMessage) {
                 LoginMessage login = (LoginMessage) request;
                 User user = userService.login(login.user, login.password);
                 if (user != null) {
                     List<String> characters = userService.register(user, session.getId());
-                    session.sendMessage(new TextMessage(mapper.writeValueAsString(new LoggedInMessage(characters).toMap())));
+                    session.sendMessage(new TextMessage(mapper.writeValueAsString(new LoggedInMessage(characters))));
                     LOG.debug("User logged in: {}", session.getId());
                 } else {
 //                        LOG.debug("Wrong user/pass");
@@ -83,7 +79,7 @@ public class MessageHandler extends TextWebSocketHandler {
                 }
                 character.getLocation().add(character);
                 LOG.debug("Location loaded {}", character.getLocation());
-                session.sendMessage(new TextMessage(mapper.writeValueAsString(new JoinedMessage(character.getLong(X), character.getLong(Y)).toMap())));
+                session.sendMessage(new TextMessage(mapper.writeValueAsString(new JoinedMessage(character.getLong(X), character.getLong(Y)))));
                 locationWorkerManager.runLocation(character.getLocation());
                 updateSenderManager.startSendingUpdates(character);
             }

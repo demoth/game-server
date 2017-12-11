@@ -1,6 +1,6 @@
 package org.demoth.aworlds.server2.model;
 
-import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData;
 
 import java.util.ArrayList;
@@ -45,8 +45,8 @@ public class Location extends Actor {
         return players;
     }
 
-    public Collection<MapLike> updateLocation() {
-        Collection<MapLike> result = new ArrayList<>();
+    public Collection<Message> updateLocation() {
+        Collection<Message> result = new ArrayList<>();
         // invoke onUpdate() callback on the whole tree
         updateTree(new TreeSet<>());
         // process requests for actors
@@ -57,7 +57,7 @@ public class Location extends Actor {
         return result;
     }
 
-    private Collection<MapLike> toAppearMessage(Collection<Actor> actors) {
+    private Collection<Message> toAppearMessage(Collection<Actor> actors) {
         return actors.stream().map(actor -> new AppearData(actor.getType(), actor.getId(), actor.getLong(X), actor.getLong(Y))).collect(toList());
     }
 

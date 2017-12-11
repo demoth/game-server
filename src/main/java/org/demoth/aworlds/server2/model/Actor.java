@@ -1,7 +1,7 @@
 package org.demoth.aworlds.server2.model;
 
 import org.demoth.aworlds.server2.api.LongPropertiesEnum;
-import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.api.messaging.fromServer.StateChangeData;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class Actor {
     private EnumMap<LongPropertiesEnum, Long> longProps = new EnumMap<>(LongPropertiesEnum.class);
 
     // updates accumulated during current frame
-    private Collection<MapLike> updates = new ArrayList<>();
+    private Collection<Message> updates = new ArrayList<>();
     private String type;
     private String id;
     private Collection<Actor> actors;
@@ -50,7 +50,7 @@ public class Actor {
         }
     }
 
-    protected void collectResults(Collection<MapLike> results, Collection<String> visited) {
+    protected void collectResults(Collection<Message> results, Collection<String> visited) {
         results.addAll(updates);
         updates.clear();
         for (Actor actor : actors) {

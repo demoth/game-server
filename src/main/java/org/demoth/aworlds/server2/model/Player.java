@@ -1,6 +1,6 @@
 package org.demoth.aworlds.server2.model;
 
-import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.api.messaging.fromClient.CommandMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -12,7 +12,7 @@ public class Player extends Actor {
 
     private ConcurrentLinkedQueue<CommandMessage> commands = new ConcurrentLinkedQueue<>();
 
-    private BlockingQueue<MapLike> results = new LinkedBlockingQueue<>();
+    private BlockingQueue<Message> results = new LinkedBlockingQueue<>();
 
     private Location location;
 
@@ -38,7 +38,7 @@ public class Player extends Actor {
         commands.add(command);
     }
 
-    public void enqueueResponse(MapLike response) {
+    public void enqueueResponse(Message response) {
         results.add(response);
     }
 
@@ -46,7 +46,7 @@ public class Player extends Actor {
         return commands.isEmpty();
     }
 
-    public MapLike getUpdate() throws InterruptedException {
+    public Message getUpdate() throws InterruptedException {
         return results.take();
     }
 }

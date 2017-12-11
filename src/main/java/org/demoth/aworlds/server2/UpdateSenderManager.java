@@ -1,7 +1,7 @@
 package org.demoth.aworlds.server2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.api.messaging.fromServer.UpdateMessage;
 import org.demoth.aworlds.server2.model.Player;
 import org.slf4j.Logger;
@@ -33,9 +33,9 @@ public class UpdateSenderManager {
             LOG.debug("Started sending updates for player {} ", player.getName());
             while (true) {
                 try {
-                    MapLike change = player.getUpdate();
+                    Message change = player.getUpdate();
                     UpdateMessage update = new UpdateMessage(Collections.singletonList(change));
-                    player.getSession().sendMessage(new TextMessage(mapper.writeValueAsString(update.toMap())));
+                    player.getSession().sendMessage(new TextMessage(mapper.writeValueAsString(update)));
                 } catch (IOException e) {
                     LOG.error("Error while sending updates", e);
                     return;

@@ -1,8 +1,7 @@
 package org.demoth.aworlds.server2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.demoth.aworlds.server2.api.messaging.MapLike;
-import org.demoth.aworlds.server2.api.messaging.MessageParser;
+import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.api.messaging.fromClient.JoinMessage;
 import org.demoth.aworlds.server2.api.messaging.fromClient.LoginMessage;
 import org.demoth.aworlds.server2.api.messaging.fromServer.JoinedMessage;
@@ -14,7 +13,6 @@ import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 public class TestClient {
 
@@ -25,7 +23,7 @@ public class TestClient {
         TestEndpoint te = new TestEndpoint(new URI("ws://localhost:8080/action.json"));
         TestHandler tester = new TestHandler(te);
         te.addMessageHandler(tester);
-        te.sendMessage(mapper.writeValueAsString(new LoginMessage("demoth", "cadaver").toMap()));
+        te.sendMessage(mapper.writeValueAsString(new LoginMessage("demoth", "cadaver")));
         while (!tester.done()) {
             Thread.sleep(100);
 
@@ -44,13 +42,12 @@ public class TestClient {
         @Override
         public void handleMessage(String message) {
             try {
-                Map map = mapper.readValue(message, Map.class);
-                LOG.debug("Received {}", map);
-                MapLike msg = MessageParser.fromMap(map);
+                LOG.debug("Received {}", message);
+                Message msg = mapper.readValue(message, Message.class);
                 if (msg instanceof LoggedInMessage) {
                     LoggedInMessage loggedIn = (LoggedInMessage) msg;
                     LOG.debug("Logged in! Chars: " + loggedIn.characters);
-                    endpoint.sendMessage(mapper.writeValueAsString(new JoinMessage(loggedIn.characters.stream().findAny().get()).toMap()));
+                    endpoint.sendMessage(mapper.writeValueAsString(new JoinMessage(loggedIn.characters.stream().findAny().get())));
                 } else if (msg instanceof JoinedMessage) {
                     JoinedMessage joined = (JoinedMessage) msg;
                     LOG.debug("Joined: " + joined);

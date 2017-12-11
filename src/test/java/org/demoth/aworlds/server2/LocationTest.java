@@ -1,6 +1,6 @@
 package org.demoth.aworlds.server2;
 
-import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.model.Actor;
 import org.demoth.aworlds.server2.model.Location;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class LocationTest {
             }
         };
         testLocation.add(cat);
-        Collection<MapLike> results = testLocation.updateLocation();
+        Collection<Message> results = testLocation.updateLocation();
         System.out.println(results);
         Assert.assertEquals(7, results.size());
         Assert.assertEquals(110L, cat.getLong(HEALTH).longValue());
@@ -57,7 +57,7 @@ public class LocationTest {
             }
         }));
         testLocation.add(cat);
-        Collection<MapLike> results = testLocation.updateLocation();
+        Collection<Message> results = testLocation.updateLocation();
         System.out.println(results);
         Assert.assertEquals(7, results.size());
         Assert.assertEquals(110L, cat.getLong(HEALTH).longValue());

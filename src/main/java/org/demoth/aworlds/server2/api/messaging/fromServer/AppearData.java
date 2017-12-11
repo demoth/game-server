@@ -1,43 +1,20 @@
 package org.demoth.aworlds.server2.api.messaging.fromServer;
 
-import org.demoth.aworlds.server2.api.messaging.MapLike;
+import org.demoth.aworlds.server2.api.messaging.Message;
 
-import java.util.Map;
+public class AppearData extends Message {
+    public String objectType;
+    public String id;
+    public long x;
+    public long y;
 
-public class AppearData extends MapLike {
-    public static final String TYPE = "APPEAR";
-    String object_type;
-    String id;
-    long x;
-    long y;
+    public AppearData() {
+    }
 
-    public AppearData(String object_type, String id, long x, long y) {
-        this.object_type = object_type;
+    public AppearData(String objectType, String id, long x, long y) {
+        this.objectType = objectType;
         this.id = id;
         this.x = x;
         this.y = y;
-    }
-
-    public AppearData(Map<String, Object> from) {
-        super(from);
-        this.object_type = (String) from.get("object_type");
-        this.id = (String) from.get("object_id");
-        this.x = Long.parseLong(from.get("X").toString());
-        this.y = Long.parseLong(from.get("Y").toString());
-    }
-
-    @Override
-    public String getType() {
-        return TYPE;
-    }
-
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> result = super.toMap();
-        result.put("object_type", object_type);
-        result.put("object_id", id);
-        result.put("X", x);
-        result.put("Y", y);
-        return result;
     }
 }
