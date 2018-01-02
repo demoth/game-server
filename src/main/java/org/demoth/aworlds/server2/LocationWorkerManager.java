@@ -2,7 +2,7 @@ package org.demoth.aworlds.server2;
 
 import org.demoth.aworlds.server2.api.LongPropertiesEnum;
 import org.demoth.aworlds.server2.api.messaging.Message;
-import org.demoth.aworlds.server2.api.messaging.fromServer.Positioned;
+import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData;
 import org.demoth.aworlds.server2.api.messaging.fromServer.StateChangeData;
 import org.demoth.aworlds.server2.model.Location;
 import org.demoth.aworlds.server2.model.Player;
@@ -71,15 +71,31 @@ public class LocationWorkerManager {
                             StateChangeData data = (StateChangeData) message;
                             return player.getId().equals(data.id);
                         }
-                        if (message instanceof Positioned) {
-                            Positioned appear = (Positioned) message;
+                        if (message instanceof AppearData) {
+                            AppearData appear = (AppearData) message;
+                            if (appear.id.equals(player.getId())) {
+                                if (player.appeared) {
+                                    return false;
+                                } else {
+                                    player.appeared = true;
+                                    return true;
+                                }
+                            }
                             if (Math.abs(appear.getX() - player.getLong(X)) > radius)
                                 return false;
                             if (Math.abs(appear.getY() - player.getLong(Y)) > radius)
                                 return false;
+
+                            // todo: think about caching
+                            String key = appear.getX() + ":" + appear.getY();
+                            if (player.cache.containsKey(key) && player.cache.get(key).equals(appear))
+                                return false;
+                            else {
+                                player.cache.put(key, appear);
+                            }
                             return true;
                         }
-                return false;
+                        return false;
                     }
             ).forEach(player::enqueueResponse);
         });

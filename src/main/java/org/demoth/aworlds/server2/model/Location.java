@@ -59,8 +59,9 @@ public class Location extends Actor {
         performCommands();
         // get the results of above updates
         collectResults(result, new TreeSet<>());
+        // todo: do not send player appear on each move
         Stream<AppearData> updates = getActors().stream().map(actor -> new AppearData(actor.getType(), actor.getId(), actor.getLong(X), actor.getLong(Y)));
-        // todo: filter out redundant events
+
         result.addAll(updates.collect(toList()));
         return result;
     }
