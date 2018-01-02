@@ -13,4 +13,12 @@ public class LoginMessage extends Message {
         this.login = login;
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "LoginMessage{" +
+                "login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

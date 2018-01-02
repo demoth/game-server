@@ -26,7 +26,6 @@ public class TestClient {
         te.sendMessage(mapper.writeValueAsString(new LoginMessage("demoth", "cadaver")));
         while (!tester.done()) {
             Thread.sleep(100);
-
         }
     }
 

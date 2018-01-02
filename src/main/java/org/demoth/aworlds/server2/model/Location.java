@@ -1,6 +1,8 @@
 package org.demoth.aworlds.server2.model;
 
 import org.demoth.aworlds.server2.api.messaging.Message;
+import org.demoth.aworlds.server2.api.messaging.fromClient.CommandMessage;
+import org.demoth.aworlds.server2.api.messaging.fromClient.MoveAction;
 import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData;
 
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class Location extends Actor {
         for (int y = 0; y < size; y++) {
             board[y] = new Cell[size];
             char[] chars = location[y];
-            for (int x = 0; x < chars.length; x++) {
+            for (int x = 0; x < size; x++) {
                 char c = chars[x];
                 Actor floorTile = new Actor();
                 floorTile.setLong(X, (long) x);
@@ -41,7 +43,6 @@ public class Location extends Actor {
                 floorTile.setType(c == '#' ? "WALL" : "FLOOR");
                 getActors().add(floorTile);
                 board[y][x] = new Cell(floorTile);
-                // todo appear!
             }
         }
     }
@@ -64,24 +65,48 @@ public class Location extends Actor {
         return result;
     }
 
-    private Collection<Message> toAppearMessage(Collection<Actor> actors) {
-        return actors.stream().map(actor -> new AppearData(actor.getType(), actor.getId(), actor.getLong(X), actor.getLong(Y))).collect(toList());
-    }
-
     private void performCommands() {
-        //for (Actor actor : getActors()) {
-        // for each command:
-        //  - discard if requirements are not matched
-        //  - perform
-        //}
+        for (Player player : players) {
+            boolean performed = false;
+            while (true) {
+                CommandMessage command = player.commands.peek();
+                if (command == null)
+                    break;
+
+                // todo implement real check
+                if (performed)
+                    break;
+                else {
+                    command = player.commands.poll();
+                    performed = true;
+                }
+
+                System.out.println("executing: " + command);
+                if (command.action instanceof MoveAction) {
+                    MoveAction move = (MoveAction) command.action;
+                    switch (move.direction) {
+                        case "n":
+                            move(player, -1, 0);
+                            break;
+                        case "s":
+                            move(player, 1, 0);
+                            break;
+                        case "e":
+                            move(player, 0, 1);
+                            break;
+                        case "w":
+                            move(player, 0, -1);
+                            break;
+                    }
+                }
+            }
+        }
     }
 
-    public long getSleepTime(boolean allPlayersReady) {
-        // todo: remove
-        if (allPlayersReady)
-            return 100;
-        else
-            return 2000;
+    private void move(Player player, int y, int x) {
+        player.setLong(X, player.getLong(X) + x);
+        player.setLong(Y, player.getLong(Y) + y);
+        // todo: update board!
     }
 
     public void add(Actor actor) {

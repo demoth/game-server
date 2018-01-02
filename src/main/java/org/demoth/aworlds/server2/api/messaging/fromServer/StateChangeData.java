@@ -8,6 +8,7 @@ public class StateChangeData extends Message {
     public String field;
     @JsonProperty("new_value")
     public String newValue;
+
     public StateChangeData() {
     }
 
@@ -15,5 +16,14 @@ public class StateChangeData extends Message {
         this.id = id;
         this.field = field;
         this.newValue = newValue;
+    }
+
+    @Override
+    public String toString() {
+        return "StateChangeData{" +
+                "id='" + id + '\'' +
+                ", field='" + field + '\'' +
+                ", newValue='" + newValue + '\'' +
+                '}';
     }
 }

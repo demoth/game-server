@@ -38,7 +38,8 @@ public class LocationWorkerManager {
                 // todo move to other thread
                 filterUpdates(updates, location.getPlayers());
                 boolean allPlayersReady = location.getPlayers().stream().noneMatch(Player::idle);
-                long sleep = location.getSleepTime(allPlayersReady);
+                // todo: make configurable
+                long sleep = (long) (allPlayersReady ? 100 : 2000);
                 try {
                     Thread.sleep(sleep);
                 } catch (InterruptedException e) {
@@ -63,16 +64,12 @@ public class LocationWorkerManager {
      * For each player filter updates and put them to the send queue.
      */
     private void filterUpdates(Collection<Message> updates, Collection<Player> players) {
-        // todo implement actual filtering
         players.forEach(player -> {
             Long radius = player.getLong(LongPropertiesEnum.SIGHT_RADIUS);
             updates.stream().filter(message -> {
                         if (message instanceof StateChangeData) {
                             StateChangeData data = (StateChangeData) message;
-                            if (player.getId().equals(data.id))
-                                return true;
-                            else
-                                return false;
+                            return player.getId().equals(data.id);
                         }
                         if (message instanceof Positioned) {
                             Positioned appear = (Positioned) message;
@@ -80,8 +77,9 @@ public class LocationWorkerManager {
                                 return false;
                             if (Math.abs(appear.getY() - player.getLong(Y)) > radius)
                                 return false;
+                            return true;
                         }
-                        return true;
+                return false;
                     }
             ).forEach(player::enqueueResponse);
         });

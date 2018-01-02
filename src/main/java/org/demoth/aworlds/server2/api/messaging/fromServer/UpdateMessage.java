@@ -13,4 +13,11 @@ public class UpdateMessage extends Message {
     public UpdateMessage(List<Message> updates) {
         this.updates = updates;
     }
+
+    @Override
+    public String toString() {
+        return "UpdateMessage{" +
+                "updates=" + updates +
+                '}';
+    }
 }

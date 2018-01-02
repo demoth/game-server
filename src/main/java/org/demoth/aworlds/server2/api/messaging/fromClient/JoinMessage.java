@@ -13,4 +13,11 @@ public class JoinMessage extends Message {
     public JoinMessage(String characterId) {
         this.characterId = characterId;
     }
+
+    @Override
+    public String toString() {
+        return "JoinMessage{" +
+                "characterId='" + characterId + '\'' +
+                '}';
+    }
 }

@@ -13,4 +13,10 @@ public class LoggedInMessage extends Message {
         this.characters = characters;
     }
 
+    @Override
+    public String toString() {
+        return "LoggedInMessage{" +
+                "characters=" + characters +
+                '}';
+    }
 }

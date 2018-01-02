@@ -19,4 +19,10 @@ public class DisappearData extends Message implements Positioned {
     public long getY() {
         return y;
     }
+
+    public DisappearData(String id, long x, long y) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+    }
 }

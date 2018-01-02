@@ -2,6 +2,7 @@ package org.demoth.aworlds.server2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.demoth.aworlds.server2.api.messaging.Message;
+import org.demoth.aworlds.server2.api.messaging.fromClient.CommandMessage;
 import org.demoth.aworlds.server2.api.messaging.fromClient.JoinMessage;
 import org.demoth.aworlds.server2.api.messaging.fromClient.LoginMessage;
 import org.demoth.aworlds.server2.api.messaging.fromServer.JoinedMessage;
@@ -82,6 +83,9 @@ public class MessageHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(mapper.writeValueAsString(new JoinedMessage(character.getLong(X), character.getLong(Y)))));
                 locationWorkerManager.runLocation(character.getLocation());
                 updateSenderManager.startSendingUpdates(character);
+            } else if (request instanceof CommandMessage) {
+                Player player = players.get(session.getId());
+                player.enqueueRequest((CommandMessage) request);
             }
         } catch (Exception e) {
             LOG.error("Error while processing message", e);

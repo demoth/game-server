@@ -13,4 +13,12 @@ public class JoinedMessage extends Message {
         this.x = x;
         this.y = y;
     }
+
+    @Override
+    public String toString() {
+        return "JoinedMessage{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

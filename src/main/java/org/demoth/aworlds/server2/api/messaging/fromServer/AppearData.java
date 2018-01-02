@@ -29,4 +29,14 @@ public class AppearData extends Message implements Positioned {
     public long getY() {
         return y;
     }
+
+    @Override
+    public String toString() {
+        return "AppearData{" +
+                "objectType='" + objectType + '\'' +
+                ", id='" + id + '\'' +
+                ", x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }
