@@ -5,12 +5,12 @@ import org.demoth.aworlds.server2.api.messaging.Message;
 import java.util.List;
 
 public class UpdateMessage extends Message {
-    public List<Message> changes;
+    public List<Message> updates;
 
     public UpdateMessage() {
     }
 
-    public UpdateMessage(List<Message> changes) {
-        this.changes = changes;
+    public UpdateMessage(List<Message> updates) {
+        this.updates = updates;
     }
 }

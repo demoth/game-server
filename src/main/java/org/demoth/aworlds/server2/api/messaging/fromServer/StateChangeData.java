@@ -1,10 +1,12 @@
 package org.demoth.aworlds.server2.api.messaging.fromServer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.demoth.aworlds.server2.api.messaging.Message;
 
 public class StateChangeData extends Message {
     public String id;
     public String field;
+    @JsonProperty("new_value")
     public String newValue;
 
     public StateChangeData() {

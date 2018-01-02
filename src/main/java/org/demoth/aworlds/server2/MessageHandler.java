@@ -58,14 +58,14 @@ public class MessageHandler extends TextWebSocketHandler {
             Message request = mapper.readValue(message.getPayload().toString(), Message.class);
             if (request instanceof LoginMessage) {
                 LoginMessage login = (LoginMessage) request;
-                User user = userService.login(login.user, login.password);
+                User user = userService.login(login.login, login.password);
                 if (user != null) {
                     List<String> characters = userService.register(user, session.getId());
                     session.sendMessage(new TextMessage(mapper.writeValueAsString(new LoggedInMessage(characters))));
                     LOG.debug("User logged in: {}", session.getId());
                 } else {
-//                        LOG.debug("Wrong user/pass");
-//                        session.sendMessage(new FromServerMessage(ERROR, "Wrong user/pass").toText(mapper));
+//                        LOG.debug("Wrong login/pass");
+//                        session.sendMessage(new FromServerMessage(ERROR, "Wrong login/pass").toText(mapper));
                 }
 
             } else if (request instanceof JoinMessage) {

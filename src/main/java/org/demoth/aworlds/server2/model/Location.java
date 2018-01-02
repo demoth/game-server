@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.demoth.aworlds.server2.api.LongPropertiesEnum.X;
@@ -51,9 +52,12 @@ public class Location extends Actor {
         updateTree(new TreeSet<>());
         // process requests for actors
         performCommands();
-        // get the results of above changes
+        // get the results of above updates
         collectResults(result, new TreeSet<>());
-        result.addAll(toAppearMessage(getActors()));
+        // todo: filter out not visible
+        Stream<AppearData> updates = getActors().stream().map(actor -> new AppearData(actor.getType(), actor.getId(), actor.getLong(X), actor.getLong(Y)));
+        // todo: filter out redundant events
+        result.addAll(updates.collect(toList()));
         return result;
     }
 
