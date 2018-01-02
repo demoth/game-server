@@ -3,7 +3,7 @@ package org.demoth.aworlds.server2.api.messaging.fromServer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.demoth.aworlds.server2.api.messaging.Message;
 
-public class AppearData extends Message {
+public class AppearData extends Message implements Positioned {
     @JsonProperty("object_type")
     public String objectType;
     public String id;
@@ -18,5 +18,15 @@ public class AppearData extends Message {
         this.id = id;
         this.x = x;
         this.y = y;
+    }
+
+    @Override
+    public long getX() {
+        return x;
+    }
+
+    @Override
+    public long getY() {
+        return y;
     }
 }

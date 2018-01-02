@@ -5,5 +5,6 @@ public enum LongPropertiesEnum {
     MAX_HEALTH,
     REGEN_HEALTH,
     X,
-    Y
+    Y,
+    SIGHT_RADIUS
 }

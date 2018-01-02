@@ -51,6 +51,8 @@ public class TestClient {
                 } else if (msg instanceof JoinedMessage) {
                     JoinedMessage joined = (JoinedMessage) msg;
                     LOG.debug("Joined: " + joined);
+                } else {
+                    System.out.println("msg = " + msg);
                 }
             } catch (Exception e) {
                 LOG.error("Error: ", e);

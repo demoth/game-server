@@ -16,27 +16,31 @@ import static org.demoth.aworlds.server2.api.LongPropertiesEnum.Y;
 public class Location extends Actor {
     // players are kept to manage connection
     private Collection<Player> players = new ConcurrentLinkedQueue<>();
+    private final Cell[][] board;
 
     public Location() {
         // todo remove
         int size = 6;
         setName("Test location");
         char[][] location = new char[size][];
-        location[0] = "####################".toCharArray();
-        location[1] = "#....#####.#########".toCharArray();
-        location[2] = "##....#.##........##".toCharArray();
-        location[3] = "##....##....###...##".toCharArray();
-        location[4] = "#.##.........##...##".toCharArray();
-        location[5] = "####################".toCharArray();
+        board = new Cell[size][];
+        location[0] = "######".toCharArray();
+        location[1] = "#...##".toCharArray();
+        location[2] = ".....#".toCharArray();
+        location[3] = ".....#".toCharArray();
+        location[4] = "#.#...".toCharArray();
+        location[5] = "######".toCharArray();
         for (int y = 0; y < size; y++) {
+            board[y] = new Cell[size];
             char[] chars = location[y];
             for (int x = 0; x < chars.length; x++) {
                 char c = chars[x];
-                Actor tile = new Actor();
-                tile.setLong(X, (long) x);
-                tile.setLong(Y, (long) y);
-                tile.setType(c == '#' ? "WALL" : "FLOOR");
-                getActors().add(tile);
+                Actor floorTile = new Actor();
+                floorTile.setLong(X, (long) x);
+                floorTile.setLong(Y, (long) y);
+                floorTile.setType(c == '#' ? "WALL" : "FLOOR");
+                getActors().add(floorTile);
+                board[y][x] = new Cell(floorTile);
                 // todo appear!
             }
         }
@@ -54,7 +58,6 @@ public class Location extends Actor {
         performCommands();
         // get the results of above updates
         collectResults(result, new TreeSet<>());
-        // todo: filter out not visible
         Stream<AppearData> updates = getActors().stream().map(actor -> new AppearData(actor.getType(), actor.getId(), actor.getLong(X), actor.getLong(Y)));
         // todo: filter out redundant events
         result.addAll(updates.collect(toList()));

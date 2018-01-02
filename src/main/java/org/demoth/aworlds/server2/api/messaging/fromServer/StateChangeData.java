@@ -8,7 +8,6 @@ public class StateChangeData extends Message {
     public String field;
     @JsonProperty("new_value")
     public String newValue;
-
     public StateChangeData() {
     }
 

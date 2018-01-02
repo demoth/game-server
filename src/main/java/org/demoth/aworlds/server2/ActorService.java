@@ -11,6 +11,7 @@ public class ActorService {
         Player player = new Player();
         player.setName(charId);
         player.setType("PLAYER");
+        player.setLong(LongPropertiesEnum.SIGHT_RADIUS, 1L);
         return player;
     }
 
