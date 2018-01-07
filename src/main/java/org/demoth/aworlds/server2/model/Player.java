@@ -7,6 +7,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,7 +19,14 @@ public class Player extends Actor {
 
     public ConcurrentLinkedQueue<CommandMessage> commands = new ConcurrentLinkedQueue<>();
 
+    // this cache holds appear data sent from server to client.
+    // scope - session
     public Map<String, AppearData> cache = new HashMap<>();
+
+    // this set holds ids of object that were visible previous frame.
+    // used to calculate appear/disappear data
+    // scope - frame
+    public Set<String> sightLastFrame = new TreeSet<>();
 
     private BlockingQueue<Message> results = new LinkedBlockingQueue<>();
 

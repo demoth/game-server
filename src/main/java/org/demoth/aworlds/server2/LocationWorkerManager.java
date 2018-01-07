@@ -35,8 +35,6 @@ public class LocationWorkerManager {
                     return;
                 }
                 Collection<Message> updates = location.updateLocation();
-                // todo move to other thread
-                filterUpdates(updates, location.getPlayers());
                 boolean allPlayersReady = location.getPlayers().stream().noneMatch(Player::idle);
                 // todo: make configurable
                 long sleep = (long) (allPlayersReady ? 100 : 2000);
@@ -63,6 +61,7 @@ public class LocationWorkerManager {
     /*
      * For each player filter updates and put them to the send queue.
      */
+    @Deprecated
     private void filterUpdates(Collection<Message> updates, Collection<Player> players) {
         players.forEach(player -> {
             Long radius = player.getLong(LongPropertiesEnum.SIGHT_RADIUS);

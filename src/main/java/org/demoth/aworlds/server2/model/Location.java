@@ -4,14 +4,11 @@ import org.demoth.aworlds.server2.api.messaging.Message;
 import org.demoth.aworlds.server2.api.messaging.fromClient.CommandMessage;
 import org.demoth.aworlds.server2.api.messaging.fromClient.MoveAction;
 import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData;
+import org.demoth.aworlds.server2.api.messaging.fromServer.DisappearData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
 import static org.demoth.aworlds.server2.api.LongPropertiesEnum.X;
 import static org.demoth.aworlds.server2.api.LongPropertiesEnum.Y;
 
@@ -57,13 +54,40 @@ public class Location extends Actor {
         updateTree(new TreeSet<>());
         // process requests for actors
         performCommands();
-        // get the results of above updates
+        // get the results of above updates,
+        // there only are state changes (for now).
+        // all appear/disappear data is filled below
         collectResults(result, new TreeSet<>());
-        // todo: do not send player appear on each move
-        Stream<AppearData> updates = getActors().stream().map(actor -> new AppearData(actor.getType(), actor.getId(), actor.getLong(X), actor.getLong(Y)));
+        // for each player:
+        // 1 get player sight (visible objects)
+        // 2 compare with player.sightLastFrame (calculate appear/disappear)
+        // 3 for disappeared objects in sight sent disappear data
+        // 4 for appeared object in sight send appear data
 
-        result.addAll(updates.collect(toList()));
+        players.forEach(player -> {
+            Set<Actor> sight = getPlayerSight(player, board);
+            Set<String> sightLastFrame = new TreeSet<>();
+            Set<AppearData> appeared = new TreeSet<>();
+            for (Actor actor : sight) {
+                sightLastFrame.add(actor.getId());
+                if (!player.sightLastFrame.contains(actor.getId())) {
+                    // send appear data
+                    appeared.add(new AppearData(actor.getType(), getId(), actor.getLong(X), actor.getLong(Y)));
+                } else {
+                    // do not send disappear data
+                    player.sightLastFrame.remove(actor.getId());
+                }
+            }
+            appeared.forEach(player::enqueueResponse);
+            player.sightLastFrame.forEach(id -> player.enqueueResponse(new DisappearData(id)));
+            player.sightLastFrame = sightLastFrame;
+        });
+
         return result;
+    }
+
+    private Set<Actor> getPlayerSight(Player player, Cell[][] board) {
+        return new TreeSet<>();
     }
 
     private void performCommands() {
@@ -107,7 +131,7 @@ public class Location extends Actor {
     private void move(Player player, int y, int x) {
         player.setLong(X, player.getLong(X) + x);
         player.setLong(Y, player.getLong(Y) + y);
-        // todo: update board!
+
     }
 
     public void add(Actor actor) {
