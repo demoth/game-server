@@ -6,11 +6,14 @@ import org.demoth.aworlds.server2.api.messaging.fromClient.MoveAction;
 import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData;
 import org.demoth.aworlds.server2.api.messaging.fromServer.DisappearData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Stream;
 
-import static org.demoth.aworlds.server2.api.LongPropertiesEnum.X;
-import static org.demoth.aworlds.server2.api.LongPropertiesEnum.Y;
+import static org.demoth.aworlds.server2.api.LongPropertiesEnum.*;
 
 public class Location extends Actor {
     // players are kept to manage connection
@@ -48,7 +51,7 @@ public class Location extends Actor {
         return players;
     }
 
-    public Collection<Message> updateLocation() {
+    public void updateLocation() {
         Collection<Message> result = new ArrayList<>();
         // invoke onUpdate() callback on the whole tree
         updateTree(new TreeSet<>());
@@ -63,8 +66,9 @@ public class Location extends Actor {
         // 2 compare with player.sightLastFrame (calculate appear/disappear)
         // 3 for disappeared objects in sight sent disappear data
         // 4 for appeared object in sight send appear data
-
         players.forEach(player -> {
+            filterUpdates(player, result).forEach(player::enqueueResponse);
+
             Set<Actor> sight = getPlayerSight(player, board);
             Set<String> sightLastFrame = new TreeSet<>();
             Set<AppearData> appeared = new TreeSet<>();
@@ -82,12 +86,19 @@ public class Location extends Actor {
             player.sightLastFrame.forEach(id -> player.enqueueResponse(new DisappearData(id)));
             player.sightLastFrame = sightLastFrame;
         });
+    }
 
-        return result;
+    private Stream<Message> filterUpdates(Player player, Collection<Message> result) {
+        // todo: add hook to encapsulate filterUpdates() game logic
+        return result.stream();
     }
 
     private Set<Actor> getPlayerSight(Player player, Cell[][] board) {
-        return new TreeSet<>();
+        // todo: add hook to encapsulate getPlayerSight() game logic
+        TreeSet<Actor> actors = new TreeSet<>();
+        Long sightRadius = player.getLong(SIGHT_RADIUS);
+        
+        return actors;
     }
 
     private void performCommands() {
