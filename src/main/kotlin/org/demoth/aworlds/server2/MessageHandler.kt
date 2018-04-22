@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.demoth.aworlds.server2.api.LongPropertiesEnum.X
 import org.demoth.aworlds.server2.api.LongPropertiesEnum.Y
 import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.fromClient.CommandMessage
-import org.demoth.aworlds.server2.api.messaging.fromClient.JoinMessage
-import org.demoth.aworlds.server2.api.messaging.fromClient.LoginMessage
-import org.demoth.aworlds.server2.api.messaging.fromServer.JoinedMessage
-import org.demoth.aworlds.server2.api.messaging.fromServer.LoggedInMessage
+import org.demoth.aworlds.server2.api.messaging.CommandMessage
+import org.demoth.aworlds.server2.api.messaging.JoinMessage
+import org.demoth.aworlds.server2.api.messaging.LoginMessage
+import org.demoth.aworlds.server2.api.messaging.JoinedMessage
+import org.demoth.aworlds.server2.api.messaging.LoggedInMessage
 import org.demoth.aworlds.server2.model.Player
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

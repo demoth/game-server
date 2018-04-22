@@ -4,8 +4,8 @@ import org.demoth.aworlds.server2.api.LongPropertiesEnum
 import org.demoth.aworlds.server2.api.LongPropertiesEnum.X
 import org.demoth.aworlds.server2.api.LongPropertiesEnum.Y
 import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData
-import org.demoth.aworlds.server2.api.messaging.fromServer.StateChangeData
+import org.demoth.aworlds.server2.api.messaging.AppearData
+import org.demoth.aworlds.server2.api.messaging.StateChangeData
 import org.demoth.aworlds.server2.model.Location
 import org.demoth.aworlds.server2.model.Player
 import org.slf4j.LoggerFactory

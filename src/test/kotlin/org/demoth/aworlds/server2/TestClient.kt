@@ -2,11 +2,10 @@ package org.demoth.aworlds.server2
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.fromClient.JoinMessage
-import org.demoth.aworlds.server2.api.messaging.fromClient.LoginMessage
-import org.demoth.aworlds.server2.api.messaging.fromServer.JoinedMessage
-import org.demoth.aworlds.server2.api.messaging.fromServer.LoggedInMessage
-import org.slf4j.Logger
+import org.demoth.aworlds.server2.api.messaging.JoinMessage
+import org.demoth.aworlds.server2.api.messaging.LoginMessage
+import org.demoth.aworlds.server2.api.messaging.JoinedMessage
+import org.demoth.aworlds.server2.api.messaging.LoggedInMessage
 import org.slf4j.LoggerFactory
 
 import javax.websocket.DeploymentException

@@ -2,11 +2,6 @@ package org.demoth.aworlds.server2.api.messaging
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import org.demoth.aworlds.server2.api.messaging.fromClient.CommandMessage
-import org.demoth.aworlds.server2.api.messaging.fromClient.JoinMessage
-import org.demoth.aworlds.server2.api.messaging.fromClient.LoginMessage
-import org.demoth.aworlds.server2.api.messaging.fromClient.MoveAction
-import org.demoth.aworlds.server2.api.messaging.fromServer.*
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(

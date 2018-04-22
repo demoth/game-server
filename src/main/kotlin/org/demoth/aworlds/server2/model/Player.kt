@@ -1,13 +1,12 @@
 package org.demoth.aworlds.server2.model
 
 import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.fromClient.CommandMessage
-import org.demoth.aworlds.server2.api.messaging.fromServer.AppearData
+import org.demoth.aworlds.server2.api.messaging.CommandMessage
+import org.demoth.aworlds.server2.api.messaging.AppearData
 import org.springframework.web.socket.WebSocketSession
 
 import java.util.HashMap
 import java.util.TreeSet
-import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.LinkedBlockingQueue
 

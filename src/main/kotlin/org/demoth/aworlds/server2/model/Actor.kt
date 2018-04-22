@@ -2,7 +2,7 @@ package org.demoth.aworlds.server2.model
 
 import org.demoth.aworlds.server2.api.LongPropertiesEnum
 import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.fromServer.StateChangeData
+import org.demoth.aworlds.server2.api.messaging.StateChangeData
 
 import java.util.ArrayList
 import java.util.EnumMap

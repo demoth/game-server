@@ -1,10 +1,8 @@
 package org.demoth.aworlds.server2
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.fromServer.UpdateMessage
+import org.demoth.aworlds.server2.api.messaging.UpdateMessage
 import org.demoth.aworlds.server2.model.Player
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
 
 import java.io.IOException
-import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
 @Component
