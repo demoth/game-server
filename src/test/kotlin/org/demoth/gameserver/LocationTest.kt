@@ -6,12 +6,20 @@ import org.demoth.gameserver.api.messaging.StateChangeData
 import org.demoth.gameserver.model.Actor
 import org.demoth.gameserver.model.Cell
 import org.demoth.gameserver.model.Location
+import org.demoth.gameserver.model.Player
 import org.junit.Assert.fail
 import org.junit.Test
 
 class LocationTest {
+    // #
     private fun create1TileLocation(): Location {
         val board = Array<Array<Cell?>?>(1, { arrayOf(Cell(Actor(ActorType.TILE))) })
+        return Location(board)
+    }
+
+    // ##
+    private fun create2TileLocation(): Location {
+        val board = Array<Array<Cell?>?>(1, { arrayOf(Cell(Actor(ActorType.TILE)), Cell(Actor(ActorType.TILE))) })
         return Location(board)
     }
 
@@ -36,7 +44,6 @@ class LocationTest {
         l.add(Actor(ActorType.CREATURE))
         val updates = l.updateLocation()
         assert(updates.isEmpty())
-
     }
 
     @Test
@@ -78,4 +85,27 @@ class LocationTest {
         l.add(actor)
         fail("Should have not added actor!")
     }
+
+    @Test
+    fun `test location add player`() {
+        val l = create1TileLocation()
+        l.add(Player())
+
+        assert(l.actors.size == 2)
+        assert(l.players.size == 1)
+
+        assert(l.board[0]!![0]!!.actors.size == 2)
+    }
+
+    @Test
+    fun `test location add player add actor`() {
+        val l = create2TileLocation()
+        val player = Player()
+        l.add(player)
+        l.add(Actor(ActorType.CREATURE, "felix", 1, 0))
+        l.updateLocation()
+        assert(player.results.size == 4) // two tiles and two actors
+    }
+
+
 }

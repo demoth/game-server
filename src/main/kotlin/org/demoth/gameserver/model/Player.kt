@@ -24,7 +24,7 @@ class Player : Actor(ActorType.CREATURE) {
     // scope - frame
     var sightLastFrame: MutableSet<String> = TreeSet()
 
-    private val results = LinkedBlockingQueue<Message>()
+    val results = LinkedBlockingQueue<Message>()
 
     var location: Location? = null
 

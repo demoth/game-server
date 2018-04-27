@@ -6,6 +6,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Consumer
 import java.util.stream.Stream
+import kotlin.collections.HashSet
 
 class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
     // players are kept to manage connection
@@ -42,13 +43,13 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
             filterUpdates(player, result).forEach({ player.enqueueResponse(it) })
 
             val sight = getPlayerSight(player, board)
-            val sightLastFrame = TreeSet<String>()
-            val appeared = TreeSet<AppearData>()
-            for (actor in sight) {
+            val sightLastFrame = HashSet<String>()
+            val appeared = HashSet<AppearData>()
+            sight.forEach { actor ->
                 sightLastFrame.add(actor.id)
                 if (!player.sightLastFrame.contains(actor.id)) {
                     // send appear data
-                    appeared.add(AppearData(actor.type.toString(), id, actor.x, actor.x))
+                    appeared.add(AppearData(actor.type.toString(), actor.id, actor.x, actor.y))
                 } else {
                     // do not send disappear data
                     player.sightLastFrame.remove(actor.id)
@@ -68,10 +69,18 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
 
     private fun getPlayerSight(player: Player, board: Array<Array<Cell?>?>): Set<Actor> {
         // todo: add hook to encapsulate getPlayerSight() game logic
-        val actors = TreeSet<Actor>()
+        val result = HashSet<Actor>()
         val sightRadius = player.sightRadius
-
-        return actors
+        val left = if (player.x - sightRadius < 0) 0 else player.x - sightRadius
+        val up = if (player.y - sightRadius < 0) 0 else player.y - sightRadius
+        val right = if (player.x + sightRadius > board[0]!!.size - 1) board[0]!!.size - 1 else player.x + sightRadius
+        val down = if (player.y + sightRadius > board.size - 1) board.size - 1 else player.y + sightRadius
+        (up..down).forEach { y ->
+            (left..right).forEach { x ->
+                result.addAll(board[y]!![x]!!.actors)
+            }
+        }
+        return result
     }
 
     private fun performCommands() {

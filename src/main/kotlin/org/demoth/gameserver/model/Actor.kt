@@ -9,6 +9,9 @@ import java.util.*
 open class Actor(
         val type: ActorType,
         var name: String = "",
+        x: Int = 0,
+        y: Int = 0,
+        val id: String = UUID.randomUUID().toString(),
         var onUpdate: (() -> Unit)? = null) {
 
     private val longProps = EnumMap<PropertyLong, Long>(PropertyLong::class.java)
@@ -17,15 +20,14 @@ open class Actor(
     private val updates = ArrayList<Message>()
 
     // common properties
-    val id: String = UUID.randomUUID().toString()
 
-    var x: Int = 0
+    var x: Int = x
         set(value) {
             updateField("x", value)
             field = value
         }
 
-    var y: Int = 0
+    var y: Int = y
         set(value) {
             updateField("y", value)
             field = value
