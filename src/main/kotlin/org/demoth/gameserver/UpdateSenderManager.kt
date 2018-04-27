@@ -1,8 +1,8 @@
-package org.demoth.aworlds.server2
+package org.demoth.gameserver
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.demoth.aworlds.server2.api.messaging.UpdateMessage
-import org.demoth.aworlds.server2.model.Player
+import org.demoth.gameserver.api.messaging.UpdateMessage
+import org.demoth.gameserver.model.Player
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope

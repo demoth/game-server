@@ -1,4 +1,4 @@
-package org.demoth.aworlds.server2.api
+package org.demoth.gameserver.api
 
 enum class LongPropertiesEnum {
     HEALTH,

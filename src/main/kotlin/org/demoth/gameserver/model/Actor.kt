@@ -1,8 +1,8 @@
-package org.demoth.aworlds.server2.model
+package org.demoth.gameserver.model
 
-import org.demoth.aworlds.server2.api.LongPropertiesEnum
-import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.StateChangeData
+import org.demoth.gameserver.api.LongPropertiesEnum
+import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.StateChangeData
 import java.util.*
 
 open class Actor() {

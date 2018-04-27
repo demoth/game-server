@@ -1,11 +1,11 @@
-package org.demoth.aworlds.server2.model
+package org.demoth.gameserver.model
 
-import org.demoth.aworlds.server2.api.LongPropertiesEnum.*
-import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.CommandMessage
-import org.demoth.aworlds.server2.api.messaging.MoveAction
-import org.demoth.aworlds.server2.api.messaging.AppearData
-import org.demoth.aworlds.server2.api.messaging.DisappearData
+import org.demoth.gameserver.api.LongPropertiesEnum.*
+import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.CommandMessage
+import org.demoth.gameserver.api.messaging.MoveAction
+import org.demoth.gameserver.api.messaging.AppearData
+import org.demoth.gameserver.api.messaging.DisappearData
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Consumer

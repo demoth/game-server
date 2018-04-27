@@ -1,4 +1,4 @@
-package org.demoth.aworlds.server2
+package org.demoth.gameserver
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication

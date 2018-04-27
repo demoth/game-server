@@ -1,15 +1,15 @@
-package org.demoth.aworlds.server2
+package org.demoth.gameserver
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.demoth.aworlds.server2.api.LongPropertiesEnum.X
-import org.demoth.aworlds.server2.api.LongPropertiesEnum.Y
-import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.CommandMessage
-import org.demoth.aworlds.server2.api.messaging.JoinMessage
-import org.demoth.aworlds.server2.api.messaging.LoginMessage
-import org.demoth.aworlds.server2.api.messaging.JoinedMessage
-import org.demoth.aworlds.server2.api.messaging.LoggedInMessage
-import org.demoth.aworlds.server2.model.Player
+import org.demoth.gameserver.api.LongPropertiesEnum.X
+import org.demoth.gameserver.api.LongPropertiesEnum.Y
+import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.CommandMessage
+import org.demoth.gameserver.api.messaging.JoinMessage
+import org.demoth.gameserver.api.messaging.LoginMessage
+import org.demoth.gameserver.api.messaging.JoinedMessage
+import org.demoth.gameserver.api.messaging.LoggedInMessage
+import org.demoth.gameserver.model.Player
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.socket.CloseStatus

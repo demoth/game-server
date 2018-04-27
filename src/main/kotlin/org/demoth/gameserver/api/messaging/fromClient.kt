@@ -1,4 +1,4 @@
-package org.demoth.aworlds.server2.api.messaging
+package org.demoth.gameserver.api.messaging
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

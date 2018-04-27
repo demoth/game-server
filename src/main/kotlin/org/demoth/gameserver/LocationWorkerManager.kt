@@ -1,13 +1,13 @@
-package org.demoth.aworlds.server2
+package org.demoth.gameserver
 
-import org.demoth.aworlds.server2.api.LongPropertiesEnum
-import org.demoth.aworlds.server2.api.LongPropertiesEnum.X
-import org.demoth.aworlds.server2.api.LongPropertiesEnum.Y
-import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.AppearData
-import org.demoth.aworlds.server2.api.messaging.StateChangeData
-import org.demoth.aworlds.server2.model.Location
-import org.demoth.aworlds.server2.model.Player
+import org.demoth.gameserver.api.LongPropertiesEnum
+import org.demoth.gameserver.api.LongPropertiesEnum.X
+import org.demoth.gameserver.api.LongPropertiesEnum.Y
+import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.AppearData
+import org.demoth.gameserver.api.messaging.StateChangeData
+import org.demoth.gameserver.model.Location
+import org.demoth.gameserver.model.Player
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope

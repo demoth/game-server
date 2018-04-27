@@ -1,8 +1,8 @@
-package org.demoth.aworlds.server2
+package org.demoth.gameserver
 
-import org.demoth.aworlds.server2.api.LongPropertiesEnum.*
-import org.demoth.aworlds.server2.model.Actor
-import org.demoth.aworlds.server2.model.Location
+import org.demoth.gameserver.api.LongPropertiesEnum.*
+import org.demoth.gameserver.model.Actor
+import org.demoth.gameserver.model.Location
 import org.junit.Assert
 import org.junit.Test
 import java.lang.Math.min

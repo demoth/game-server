@@ -1,8 +1,10 @@
-package org.demoth.aworlds.server2.model
+package org.demoth.gameserver.model
 
-import org.demoth.aworlds.server2.api.messaging.Message
-import org.demoth.aworlds.server2.api.messaging.CommandMessage
-import org.demoth.aworlds.server2.api.messaging.AppearData
+import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.CommandMessage
+import org.demoth.gameserver.api.messaging.AppearData
+import org.demoth.gameserver.model.Actor
+import org.demoth.gameserver.model.Location
 import org.springframework.web.socket.WebSocketSession
 
 import java.util.HashMap

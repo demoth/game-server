@@ -1,3 +1,3 @@
-package org.demoth.aworlds.server2.model
+package org.demoth.gameserver.model
 
 class User

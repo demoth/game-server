@@ -1,6 +1,6 @@
-package org.demoth.aworlds.server2
+package org.demoth.gameserver
 
-import org.demoth.aworlds.server2.model.User
+import org.demoth.gameserver.model.User
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

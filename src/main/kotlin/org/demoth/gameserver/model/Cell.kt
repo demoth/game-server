@@ -1,5 +1,6 @@
-package org.demoth.aworlds.server2.model
+package org.demoth.gameserver.model
 
+import org.demoth.gameserver.model.Actor
 import java.util.ArrayList
 import java.util.Arrays
 
