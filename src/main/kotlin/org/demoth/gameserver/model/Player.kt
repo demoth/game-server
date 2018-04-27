@@ -1,18 +1,15 @@
 package org.demoth.gameserver.model
 
-import org.demoth.gameserver.api.messaging.Message
-import org.demoth.gameserver.api.messaging.CommandMessage
+import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.messaging.AppearData
-import org.demoth.gameserver.model.Actor
-import org.demoth.gameserver.model.Location
+import org.demoth.gameserver.api.messaging.CommandMessage
+import org.demoth.gameserver.api.messaging.Message
 import org.springframework.web.socket.WebSocketSession
-
-import java.util.HashMap
-import java.util.TreeSet
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.LinkedBlockingQueue
 
-class Player : Actor() {
+class Player : Actor(ActorType.CREATURE) {
 
     var appeared = false
 

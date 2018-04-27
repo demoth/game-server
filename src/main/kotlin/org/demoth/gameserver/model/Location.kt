@@ -1,44 +1,20 @@
 package org.demoth.gameserver.model
 
-import org.demoth.gameserver.api.LongPropertiesEnum.*
-import org.demoth.gameserver.api.messaging.Message
-import org.demoth.gameserver.api.messaging.CommandMessage
-import org.demoth.gameserver.api.messaging.MoveAction
-import org.demoth.gameserver.api.messaging.AppearData
-import org.demoth.gameserver.api.messaging.DisappearData
+import org.demoth.gameserver.api.ActorType
+import org.demoth.gameserver.api.messaging.*
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Consumer
 import java.util.stream.Stream
 
-class Location : Actor() {
+class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
     // players are kept to manage connection
     val players = ConcurrentLinkedQueue<Player>()
-    var board: Array<Array<Cell?>?>
 
     init {
-        // todo remove
-        val size = 6
-        name = "Test location"
-        val location = arrayOfNulls<CharArray>(size)
-        board = arrayOfNulls(size)
-        location[0] = "######".toCharArray()
-        location[1] = "#...##".toCharArray()
-        location[2] = ".....#".toCharArray()
-        location[3] = ".....#".toCharArray()
-        location[4] = "#.#...".toCharArray()
-        location[5] = "######".toCharArray()
-        for (y in 0 until size) {
-            board[y] = arrayOfNulls(size)
-            val chars = location[y]
-            for (x in 0 until size) {
-                val c = chars!![x]
-                val floorTile = Actor()
-                floorTile.setLong(X, x.toLong())
-                floorTile.setLong(Y, y.toLong())
-                floorTile.type = if (c == '#') "WALL" else "FLOOR"
-                actors.add(floorTile)
-                board[y]!![x] = Cell(floorTile)
+        board.filterNotNull().forEach { row ->
+            row.filterNotNull().forEach { cell ->
+                actors.addAll(cell.actors)
             }
         }
     }
@@ -47,7 +23,7 @@ class Location : Actor() {
         return players
     }
 
-    fun updateLocation() : ArrayList<Message> {
+    fun updateLocation(): ArrayList<Message> {
         val result = ArrayList<Message>()
         // invoke onUpdate() callback on the whole tree
         updateTree(TreeSet())
@@ -72,7 +48,7 @@ class Location : Actor() {
                 sightLastFrame.add(actor.id)
                 if (!player.sightLastFrame.contains(actor.id)) {
                     // send appear data
-                    appeared.add(AppearData(actor.type!!, id, actor.getLong(X)!!, actor.getLong(Y)!!))
+                    appeared.add(AppearData(actor.type.toString(), id, actor.x, actor.x))
                 } else {
                     // do not send disappear data
                     player.sightLastFrame.remove(actor.id)
@@ -93,7 +69,7 @@ class Location : Actor() {
     private fun getPlayerSight(player: Player, board: Array<Array<Cell?>?>): Set<Actor> {
         // todo: add hook to encapsulate getPlayerSight() game logic
         val actors = TreeSet<Actor>()
-        val sightRadius = player.getLong(SIGHT_RADIUS)
+        val sightRadius = player.sightRadius
 
         return actors
     }
@@ -131,8 +107,8 @@ class Location : Actor() {
     }
 
     private fun move(player: Player, y: Int, x: Int) {
-        player.setLong(X, player.getLong(X)!! + x)
-        player.setLong(Y, player.getLong(Y)!! + y)
+        player.x += x
+        player.y += y
 
     }
 
@@ -140,6 +116,9 @@ class Location : Actor() {
         if (actor is Player) {
             players.add(actor)
         }
+        if (actor.y !in 0..(board.size - 1) || actor.x !in 0..(board[0]!!.size - 1))
+            throw IllegalStateException("Actor added outside board! Actor position : ${actor.x},${actor.y}, board size: ${board[0]?.size},${board.size}")
+        board[actor.y]!![actor.x]!!.actors.add(actor)
         actors.add(actor)
     }
 

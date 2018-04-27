@@ -1,8 +1,6 @@
 package org.demoth.gameserver.model
 
-import org.demoth.gameserver.model.Actor
-import java.util.ArrayList
-import java.util.Arrays
+import java.util.*
 
 class Cell(vararg actors: Actor) {
     internal var actors: MutableCollection<Actor> = ArrayList()

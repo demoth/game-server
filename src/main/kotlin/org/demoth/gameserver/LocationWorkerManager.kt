@@ -1,10 +1,7 @@
 package org.demoth.gameserver
 
-import org.demoth.gameserver.api.LongPropertiesEnum
-import org.demoth.gameserver.api.LongPropertiesEnum.X
-import org.demoth.gameserver.api.LongPropertiesEnum.Y
-import org.demoth.gameserver.api.messaging.Message
 import org.demoth.gameserver.api.messaging.AppearData
+import org.demoth.gameserver.api.messaging.Message
 import org.demoth.gameserver.api.messaging.StateChangeData
 import org.demoth.gameserver.model.Location
 import org.demoth.gameserver.model.Player
@@ -43,7 +40,7 @@ open class LocationWorkerManager {
             }
         }
         instances[location] = worker
-        worker.name = "Location worker: " + location.name!!
+        worker.name = "Location worker: ${location.name}"
         worker.start()
     }
 
@@ -58,7 +55,6 @@ open class LocationWorkerManager {
     @Deprecated("")
     private fun filterUpdates(updates: Collection<Message>, players: Collection<Player>) {
         players.forEach { player ->
-            val radius = player.getLong(LongPropertiesEnum.SIGHT_RADIUS)!!
             updates.stream().filter { message ->
                 if (message is StateChangeData) {
                     val data = message
@@ -73,9 +69,9 @@ open class LocationWorkerManager {
                             return@filter true
                         }
                     }
-                    if (Math.abs(message.x - player.getLong(X)!!) > radius)
+                    if (Math.abs(message.x - player.x) > player.sightRadius)
                         return@filter false
-                    if (Math.abs(message.y - player.getLong(Y)!!) > radius)
+                    if (Math.abs(message.y - player.y) > player.sightRadius)
                         return@filter false
 
                     // todo: think about caching
@@ -93,7 +89,6 @@ open class LocationWorkerManager {
     }
 
     companion object {
-
         private val LOG = LoggerFactory.getLogger(LocationWorkerManager::class.java)
     }
 }

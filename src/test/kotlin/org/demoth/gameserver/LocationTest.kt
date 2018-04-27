@@ -1,65 +1,81 @@
 package org.demoth.gameserver
 
-import org.demoth.gameserver.api.LongPropertiesEnum.*
+import org.demoth.gameserver.api.ActorType
+import org.demoth.gameserver.api.PropertyLong.HEALTH
+import org.demoth.gameserver.api.messaging.StateChangeData
 import org.demoth.gameserver.model.Actor
+import org.demoth.gameserver.model.Cell
 import org.demoth.gameserver.model.Location
-import org.junit.Assert
+import org.junit.Assert.fail
 import org.junit.Test
-import java.lang.Math.min
 
 class LocationTest {
-
-    @Test
-    fun testSimpleLocation() {
-        val testLocation = Location()
-        val cat = Actor()
-        cat.name = "cat"
-        cat.setLong(HEALTH, 100L)
-        cat.setLong(MAX_HEALTH, 200L)
-        cat.setLong(REGEN_HEALTH, 10L)
-        cat.setLong(X, 10L)
-        cat.setLong(Y, 20L)
-        cat.onUpdate = {
-            val current = cat.getLong(HEALTH)
-            val max = cat.getLong(MAX_HEALTH)
-            val regen = cat.getLong(REGEN_HEALTH)
-            if (current != null && max != null && regen != null)
-                if (current < max && regen > 0) {
-                    cat.setLong(HEALTH, min(max, current + regen))
-                }
-
-        }
-        testLocation.add(cat)
-        val results = testLocation.updateLocation()
-        println(results)
-        Assert.assertEquals(7, results.size.toLong())
-        Assert.assertEquals(110L, cat.getLong(HEALTH)!!.toLong())
+    private fun create1TileLocation(): Location {
+        val board = Array<Array<Cell?>?>(1, { arrayOf(Cell(Actor(ActorType.TILE))) })
+        return Location(board)
     }
 
     @Test
-    fun testUpdateInsideActor() {
-        val testLocation = Location()
-        val cat = Actor()
-        cat.name = "cat"
-        cat.setLong(HEALTH, 100L)
-        cat.setLong(MAX_HEALTH, 200L)
-        cat.setLong(REGEN_HEALTH, 10L)
-        cat.setLong(X, 10L)
-        cat.setLong(Y, 20L)
-        cat.addActor(Actor("hpregen", {
-            val current = cat.getLong(HEALTH)
-            val max = cat.getLong(MAX_HEALTH)
-            val regen = cat.getLong(REGEN_HEALTH)
-            if (current != null && max != null && regen != null)
-                if (current < max && regen > 0) {
-                    cat.setLong(HEALTH, min(max, current + regen))
-                }
+    fun `test empty location update`() {
+        val l = create1TileLocation()
+        val updates = l.updateLocation()
+        assert(updates.isEmpty())
+    }
 
-        }))
-        testLocation.add(cat)
-        val results = testLocation.updateLocation()
-        println(results)
-        Assert.assertEquals(7, results.size.toLong())
-        Assert.assertEquals(110L, cat.getLong(HEALTH)!!.toLong())
+    @Test
+    fun `test location add actor to board`() {
+        val l = create1TileLocation()
+        l.add(Actor(ActorType.CREATURE))
+        assert(l.actors.size == 2)
+        assert(l.board[0]?.get(0)?.actors?.size == 2)
+    }
+
+    @Test
+    fun `test location update with emtpy actor`() {
+        val l = create1TileLocation()
+        l.add(Actor(ActorType.CREATURE))
+        val updates = l.updateLocation()
+        assert(updates.isEmpty())
+
+    }
+
+    @Test
+    fun `test location update with actor with update`() {
+        val l = create1TileLocation()
+        val felix = Actor(ActorType.CREATURE, "felix")
+        felix.onUpdate = {
+            felix.set(HEALTH, 1)
+        }
+        l.add(felix)
+        val updates = l.updateLocation()
+        assert(updates.size == 1)
+        val stateChangeData = updates[0] as StateChangeData
+        assert(stateChangeData.field == "HEALTH")
+        assert(stateChangeData.newValue == "1")
+    }
+
+    @Test
+    fun `test location update with actor with effect`() {
+        val l = create1TileLocation()
+        val felix = Actor(ActorType.CREATURE, "felix")
+        felix.actors.add(Actor(ActorType.EFFECT, "hpregen",
+                onUpdate = {
+                    felix.set(HEALTH, 2)
+                }))
+        l.add(felix)
+        val updates = l.updateLocation()
+        assert(updates.size == 1)
+        val stateChangeData = updates[0] as StateChangeData
+        assert(stateChangeData.field == "HEALTH")
+        assert(stateChangeData.newValue == "2")
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `test location add actor outside board`() {
+        val l = create1TileLocation()
+        val actor = Actor(ActorType.CREATURE)
+        actor.x = 2
+        l.add(actor)
+        fail("Should have not added actor!")
     }
 }

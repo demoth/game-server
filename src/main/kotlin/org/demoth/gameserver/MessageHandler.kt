@@ -1,14 +1,7 @@
 package org.demoth.gameserver
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.demoth.gameserver.api.LongPropertiesEnum.X
-import org.demoth.gameserver.api.LongPropertiesEnum.Y
-import org.demoth.gameserver.api.messaging.Message
-import org.demoth.gameserver.api.messaging.CommandMessage
-import org.demoth.gameserver.api.messaging.JoinMessage
-import org.demoth.gameserver.api.messaging.LoginMessage
-import org.demoth.gameserver.api.messaging.JoinedMessage
-import org.demoth.gameserver.api.messaging.LoggedInMessage
+import org.demoth.gameserver.api.messaging.*
 import org.demoth.gameserver.model.Player
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -70,7 +63,7 @@ open class MessageHandler : TextWebSocketHandler() {
                 }
                 character.location!!.add(character)
                 LOG.debug("Location loaded {}", character.location)
-                session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.getLong(X), character.getLong(Y)))))
+                session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.x, character.y))))
                 locationWorkerManager!!.runLocation(character.location!!)
                 updateSenderManager!!.startSendingUpdates(character)
             } else if (request is CommandMessage) {
