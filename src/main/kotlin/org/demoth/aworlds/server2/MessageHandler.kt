@@ -20,28 +20,27 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.util.concurrent.ConcurrentHashMap
 
 open class MessageHandler : TextWebSocketHandler() {
-    internal val mapper: ObjectMapper
     @Autowired
-    internal var userService: UserService? = null
+    private var userService: UserService? = null
     @Autowired
-    internal var actorService: ActorService? = null
+    private var actorService: ActorService? = null
     @Autowired
-    internal var locationWorkerManager: LocationWorkerManager? = null
+    private var locationWorkerManager: LocationWorkerManager? = null
     @Autowired
-    internal var updateSenderManager: UpdateSenderManager? = null
-    internal var players = ConcurrentHashMap<String, Player>()
+    private var updateSenderManager: UpdateSenderManager? = null
 
-    init {
-        mapper = ObjectMapper()
-    }
+    private val mapper: ObjectMapper = ObjectMapper()
+    private var players = ConcurrentHashMap<String, Player>()
 
     @Throws(Exception::class)
     override fun afterConnectionClosed(session: WebSocketSession?, status: CloseStatus?) {
+        if (session == null || status == null)
+            return
         super.afterConnectionClosed(session, status)
-        players[session!!.id]?.let { player ->
-            player.location!!.removePlayer(player)
+        players[session.id]?.let { player ->
+            player.location?.removePlayer(player)
             players.remove(session.id)
-            updateSenderManager!!.stopSendingUpdates(player)
+            updateSenderManager?.stopSendingUpdates(player)
             LOG.info("Disconnected: {}", session.id)
         }
     }

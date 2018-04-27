@@ -16,12 +16,8 @@ import java.util.concurrent.ConcurrentHashMap
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 open class UpdateSenderManager {
 
-    internal val mapper: ObjectMapper
+    private val mapper: ObjectMapper = ObjectMapper()
     private val players = ConcurrentHashMap<Player, Thread>()
-
-    init {
-        mapper = ObjectMapper()
-    }
 
     fun startSendingUpdates(player: Player) {
         val sender = Thread {

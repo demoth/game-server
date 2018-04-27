@@ -99,10 +99,14 @@ class Location : Actor() {
     }
 
     private fun performCommands() {
-        for (player in players) {
+        players.forEach { player ->
             var performed = false
             while (true) {
-                var command: CommandMessage? = player.commands.peek() ?: break
+                // execute player's commands until there are no commands,
+                // or cannot do anything (like when paralyzed)
+                var command: CommandMessage?
+                if (player.commands.isEmpty())
+                    break
 
                 // todo implement real check
                 if (performed)
@@ -112,10 +116,10 @@ class Location : Actor() {
                     performed = true
                 }
 
-                println("executing: " + command!!)
-                if (command.action is MoveAction) {
-                    val move = command.action as MoveAction
-                    when (move.direction) {
+                println("executing: $command")
+                val action = command.action
+                if (action is MoveAction) {
+                    when (action.direction) {
                         "n" -> move(player, -1, 0)
                         "s" -> move(player, 1, 0)
                         "e" -> move(player, 0, 1)

@@ -3,31 +3,22 @@ package org.demoth.aworlds.server2.model
 import org.demoth.aworlds.server2.api.LongPropertiesEnum
 import org.demoth.aworlds.server2.api.messaging.Message
 import org.demoth.aworlds.server2.api.messaging.StateChangeData
-
-import java.util.ArrayList
-import java.util.EnumMap
-import java.util.UUID
+import java.util.*
 
 open class Actor() {
-    var onUpdate: Callback? = null
+    var onUpdate: (() -> Unit)? = null
     var name: String? = null
     private val longProps = EnumMap<LongPropertiesEnum, Long>(LongPropertiesEnum::class.java)
 
     // updates accumulated during current frame
     private val updates = ArrayList<Message>()
     var type: String? = null
-    val id: String
-    val actors: MutableList<Actor>
+    val id: String = UUID.randomUUID().toString()
+    val actors: MutableList<Actor> = ArrayList()
 
-    constructor(name: String, update: Callback) : this() {
+    constructor(name: String, update: (() -> Unit)?) : this() {
         this.name = name
         onUpdate = update
-    }
-
-    init {
-        // todo use safe generator
-        id = UUID.randomUUID().toString()
-        actors = ArrayList()
     }
 
     fun getActors(): MutableCollection<Actor> {
@@ -35,22 +26,16 @@ open class Actor() {
     }
 
     internal fun updateTree(visited: MutableCollection<String>) {
-        if (onUpdate != null) {
-            onUpdate!!.run()
-        }
-        for (actor in actors) {
-            if (visited.add(actor.id))
-                actor.updateTree(visited)
-        }
+        onUpdate?.invoke()
+        actors.filter { visited.add(it.id) }
+                .forEach { it.updateTree(visited) }
     }
 
     protected fun collectResults(results: MutableCollection<Message>, visited: MutableCollection<String>) {
         results.addAll(updates)
         updates.clear()
-        for (actor in actors) {
-            if (visited.add(actor.id))
-                actor.collectResults(results, visited)
-        }
+        actors.filter { visited.add(it.id) }
+                .forEach { it.collectResults(results, visited) }
     }
 
     override fun toString(): String {

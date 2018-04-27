@@ -2,7 +2,6 @@ package org.demoth.aworlds.server2
 
 import org.demoth.aworlds.server2.api.LongPropertiesEnum.*
 import org.demoth.aworlds.server2.model.Actor
-import org.demoth.aworlds.server2.model.Callback
 import org.demoth.aworlds.server2.model.Location
 import org.junit.Assert
 import org.junit.Test
@@ -20,16 +19,14 @@ class LocationTest {
         cat.setLong(REGEN_HEALTH, 10L)
         cat.setLong(X, 10L)
         cat.setLong(Y, 20L)
-        cat.onUpdate = object : Callback {
-            override fun run() {
-                val current = cat.getLong(HEALTH)
-                val max = cat.getLong(MAX_HEALTH)
-                val regen = cat.getLong(REGEN_HEALTH)
-                if (current != null && max != null && regen != null)
-                    if (current < max && regen > 0) {
-                        cat.setLong(HEALTH, min(max, current + regen))
-                    }
-            }
+        cat.onUpdate = {
+            val current = cat.getLong(HEALTH)
+            val max = cat.getLong(MAX_HEALTH)
+            val regen = cat.getLong(REGEN_HEALTH)
+            if (current != null && max != null && regen != null)
+                if (current < max && regen > 0) {
+                    cat.setLong(HEALTH, min(max, current + regen))
+                }
 
         }
         testLocation.add(cat)
@@ -49,16 +46,14 @@ class LocationTest {
         cat.setLong(REGEN_HEALTH, 10L)
         cat.setLong(X, 10L)
         cat.setLong(Y, 20L)
-        cat.addActor(Actor("hpregen", object : Callback {
-            override fun run() {
-                val current = cat.getLong(HEALTH)
-                val max = cat.getLong(MAX_HEALTH)
-                val regen = cat.getLong(REGEN_HEALTH)
-                if (current != null && max != null && regen != null)
-                    if (current < max && regen > 0) {
-                        cat.setLong(HEALTH, min(max, current + regen))
-                    }
-            }
+        cat.addActor(Actor("hpregen", {
+            val current = cat.getLong(HEALTH)
+            val max = cat.getLong(MAX_HEALTH)
+            val regen = cat.getLong(REGEN_HEALTH)
+            if (current != null && max != null && regen != null)
+                if (current < max && regen > 0) {
+                    cat.setLong(HEALTH, min(max, current + regen))
+                }
 
         }))
         testLocation.add(cat)
