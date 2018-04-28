@@ -31,7 +31,7 @@ open class MessageHandler : TextWebSocketHandler() {
             return
         super.afterConnectionClosed(session, status)
         players[session.id]?.let { player ->
-            player.location?.removePlayer(player)
+            player.location?.remove(player)
             players.remove(session.id)
             updateSenderManager?.stopSendingUpdates(player)
             LOG.info("Disconnected: {}", session.id)

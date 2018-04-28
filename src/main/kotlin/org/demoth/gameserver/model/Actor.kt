@@ -41,6 +41,10 @@ open class Actor(
 
     val actors: MutableList<Actor> = ArrayList()
 
+    fun clearUpdates() {
+        updates.clear()
+    }
+
     private fun updateField(field: String, value: Int) {
         updates.add(StateChangeData(id, field, value.toString()))
     }

@@ -39,6 +39,19 @@ class LocationTest {
     }
 
     @Test
+    fun `test location remove actor from board`() {
+        val l = create1TileLocation()
+        val actor = Actor(ActorType.CREATURE)
+        l.add(actor)
+
+        l.remove(actor)
+        assert(l.actors.size == 1)
+        assert(l.actors[0].type == ActorType.TILE)
+        assert(l.board[0]!![0]!!.actors.size == 1)
+        assert(l.board[0]!![0]!!.actors.first().type == ActorType.TILE)
+    }
+
+    @Test
     fun `test location update with emtpy actor`() {
         val l = create1TileLocation()
         l.add(Actor(ActorType.CREATURE))
@@ -56,7 +69,9 @@ class LocationTest {
         l.add(felix)
         val updates = l.updateLocation()
         assert(updates.size == 1)
+        assert(updates[0] is StateChangeData)
         val stateChangeData = updates[0] as StateChangeData
+        assert(stateChangeData.id == felix.id)
         assert(stateChangeData.field == "HEALTH")
         assert(stateChangeData.newValue == "1")
     }
@@ -72,7 +87,9 @@ class LocationTest {
         l.add(felix)
         val updates = l.updateLocation()
         assert(updates.size == 1)
+        assert(updates[0] is StateChangeData)
         val stateChangeData = updates[0] as StateChangeData
+        assert(stateChangeData.id == felix.id)
         assert(stateChangeData.field == "HEALTH")
         assert(stateChangeData.newValue == "2")
     }
@@ -102,10 +119,23 @@ class LocationTest {
         val l = create2TileLocation()
         val player = Player()
         l.add(player)
-        l.add(Actor(ActorType.CREATURE, "felix", 1, 0))
+        l.add(Actor(ActorType.CREATURE, x = 1, y = 0))
         l.updateLocation()
         assert(player.results.size == 4) // two tiles and two actors
     }
 
+    @Test
+    fun `test location add player add actor second update`() {
+        val l = create2TileLocation()
+        val player = Player()
+        l.add(player)
+        l.add(Actor(ActorType.CREATURE, x = 1, y = 0))
+        l.updateLocation()
+        // emulate sending updates via network
+        player.results.clear()
+
+        l.updateLocation()
+        assert(player.results.isEmpty())
+    }
 
 }

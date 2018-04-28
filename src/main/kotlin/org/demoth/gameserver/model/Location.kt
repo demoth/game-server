@@ -13,15 +13,16 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
     val players = ConcurrentLinkedQueue<Player>()
 
     init {
-        board.filterNotNull().forEach { row ->
-            row.filterNotNull().forEach { cell ->
-                actors.addAll(cell.actors)
+        board.forEachIndexed { y,  row ->
+            row?.forEachIndexed {x,  cell ->
+                cell?.actors?.forEach {
+                    it.x = x
+                    it.y = y
+                    it.clearUpdates()
+                    actors.add(it)
+                }
             }
         }
-    }
-
-    fun getPlayers(): Collection<Player> {
-        return players
     }
 
     fun updateLocation(): ArrayList<Message> {
@@ -118,7 +119,6 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
     private fun move(player: Player, y: Int, x: Int) {
         player.x += x
         player.y += y
-
     }
 
     fun add(actor: Actor) {
@@ -131,7 +131,14 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
         actors.add(actor)
     }
 
-    fun removePlayer(player: Player) {
-        players.remove(player)
+    fun remove(actor: Actor) {
+        if (actor is Player) {
+            players.remove(actor)
+        }
+        if (actor.y !in 0..(board.size - 1) || actor.x !in 0..(board[0]!!.size - 1))
+            throw IllegalStateException("Actor removed outside board! Actor position : ${actor.x},${actor.y}, board size: ${board[0]?.size},${board.size}")
+        board[actor.y]!![actor.x]!!.actors.remove(actor)
+        actors.remove(actor)
     }
+
 }
