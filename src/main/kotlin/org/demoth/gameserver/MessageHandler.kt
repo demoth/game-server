@@ -54,7 +54,7 @@ open class MessageHandler : TextWebSocketHandler() {
                 }
 
             } else if (request is JoinMessage) {
-                val character = actorService!!.loadCharacter(request.characterId)
+                val character = actorService!!.loadCharacter(request.character_id)
                 character.session = session
                 players[session.id] = character
                 LOG.debug("Character joined {}", character)

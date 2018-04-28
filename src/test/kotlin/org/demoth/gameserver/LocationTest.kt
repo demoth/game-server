@@ -88,7 +88,7 @@ class LocationTest {
         val stateChangeData = updates[0] as StateChangeData
         assert(stateChangeData.id == felix.id)
         assert(stateChangeData.field == "HEALTH")
-        assert(stateChangeData.newValue == "1")
+        assert(stateChangeData.new_value == "1")
     }
 
     @Test
@@ -106,7 +106,7 @@ class LocationTest {
         val stateChangeData = updates[0] as StateChangeData
         assert(stateChangeData.id == felix.id)
         assert(stateChangeData.field == "HEALTH")
-        assert(stateChangeData.newValue == "2")
+        assert(stateChangeData.new_value == "2")
     }
 
     @Test(expected = IllegalStateException::class)
