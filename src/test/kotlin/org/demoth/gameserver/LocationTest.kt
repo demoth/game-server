@@ -2,9 +2,7 @@ package org.demoth.gameserver
 
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
-import org.demoth.gameserver.api.messaging.AppearData
-import org.demoth.gameserver.api.messaging.DisappearData
-import org.demoth.gameserver.api.messaging.StateChangeData
+import org.demoth.gameserver.api.messaging.*
 import org.demoth.gameserver.model.Actor
 import org.demoth.gameserver.model.Cell
 import org.demoth.gameserver.model.Location
@@ -225,5 +223,19 @@ class LocationTest {
 
         assert(player.results.contains(AppearData("CREATURE", actor.id, actor.x, actor.y)))
     }
+
+    @Test
+    fun `test player command move`() {
+        val l = createSampleLocation(width = 2)
+        val player = Player()
+        l.add(player)
+        player.enqueueRequest(CommandMessage(MoveAction("e")))
+        l.updateLocation()
+        assert(player.x == 1)
+        assert(!l.board[0]!![0]!!.actors.contains(player))
+        assert(l.board[0]!![1]!!.actors.contains(player))
+        assert(player.commands.isEmpty())
+    }
+
 
 }
