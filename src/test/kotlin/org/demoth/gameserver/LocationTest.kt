@@ -237,5 +237,18 @@ class LocationTest {
         assert(player.commands.isEmpty())
     }
 
+    @Test
+    fun `test player command move out of board borders`() {
+        val l = createSampleLocation()
+        val player = Player()
+        l.add(player)
+        player.enqueueRequest(CommandMessage(MoveAction("e")))
+        l.updateLocation()
+        // we expect nothing happens
+        assert(player.x == 0)
+        assert(l.board[0]!![0]!!.actors.contains(player))
+        assert(player.commands.isEmpty())
+    }
+
 
 }
