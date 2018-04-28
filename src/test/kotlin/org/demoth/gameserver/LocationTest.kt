@@ -22,6 +22,16 @@ class LocationTest {
         }))
     }
 
+    @Test(expected = IllegalStateException::class)
+    fun `test empty board` () {
+        Location(emptyArray())
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `test board with empty rows` () {
+        Location(arrayOf(emptyArray(), emptyArray()))
+    }
+
     @Test
     fun `test empty location update`() {
         val l = createSampleLocation()

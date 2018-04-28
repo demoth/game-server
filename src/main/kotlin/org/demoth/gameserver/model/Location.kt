@@ -13,6 +13,8 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
     val players = ConcurrentLinkedQueue<Player>()
 
     init {
+        if (board.isEmpty() || board.all { it!!.isEmpty() })
+            throw IllegalStateException("board must not be empty!")
         board.forEachIndexed { y, row ->
             row?.forEachIndexed { x, cell ->
                 cell?.actors?.forEach {
