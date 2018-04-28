@@ -32,7 +32,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location add actor to board`() {
+    fun `test add actor to board`() {
         val l = createSampleLocation()
         l.add(Actor(ActorType.CREATURE))
         assert(l.actors.size == 2)
@@ -40,7 +40,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location remove actor from board`() {
+    fun `test remove actor from board`() {
         val l = createSampleLocation()
         val actor = Actor(ActorType.CREATURE)
         l.add(actor)
@@ -53,7 +53,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location update with emtpy actor`() {
+    fun `test update with emtpy actor`() {
         val l = createSampleLocation()
         l.add(Actor(ActorType.CREATURE))
         val updates = l.updateLocation()
@@ -61,7 +61,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location move actor`() {
+    fun `test move actor`() {
         val l = createSampleLocation(width = 2)
         val actor = Actor(ActorType.CREATURE)
         l.add(actor)
@@ -77,7 +77,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location update with actor with update`() {
+    fun `test update with actor with update`() {
         val l = createSampleLocation()
         val felix = Actor(ActorType.CREATURE, "felix")
         felix.onUpdate = {
@@ -94,7 +94,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location update with actor with effect`() {
+    fun `test update with actor with effect`() {
         val l = createSampleLocation()
         val felix = Actor(ActorType.CREATURE, "felix")
         felix.actors.add(Actor(ActorType.EFFECT, "hpregen",
@@ -112,7 +112,7 @@ class LocationTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `test location add actor outside board`() {
+    fun `test add actor outside board`() {
         val l = createSampleLocation()
         val actor = Actor(ActorType.CREATURE)
         actor.x = 2
@@ -121,7 +121,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location add player`() {
+    fun `test add player`() {
         val l = createSampleLocation()
         l.add(Player())
 
@@ -132,7 +132,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location add player add actor`() {
+    fun `test add player add actor`() {
         val l = createSampleLocation(width = 2)
         val player = Player()
         l.add(player)
@@ -142,7 +142,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location add player add actor second update`() {
+    fun `test add player add actor second update`() {
         val l = createSampleLocation(width = 2)
         val player = Player()
         l.add(player)
@@ -156,7 +156,7 @@ class LocationTest {
     }
 
     @Test
-    fun `test location add player add actor remove actor`() {
+    fun `test add player add actor remove actor`() {
         val l = createSampleLocation(width = 2)
         val player = Player()
         l.add(player)
@@ -169,11 +169,25 @@ class LocationTest {
         l.remove(actor)
 
         l.updateLocation()
-        assert(player.results.size == 1)
-        val update = player.results.first()
-        assert(update is DisappearData)
-        val disappearData = update as DisappearData
-        assert(disappearData.id == actor.id)
+        assert(player.results.contains(DisappearData(actor.id)))
+    }
+
+    @Test
+    fun `test add player add actor move out of view`() {
+        val l = createSampleLocation(width = 3)
+        val player = Player()
+        l.add(player)
+        val actor = Actor(ActorType.CREATURE, x = 1, y = 0)
+        l.add(actor)
+        l.updateLocation()
+        // emulate sending updates via network
+        player.results.clear()
+
+        // move right one cell
+        l.move(actor, 1, 0)
+        l.updateLocation()
+
+        assert(player.results.contains(DisappearData(actor.id)))
     }
 
     @Test
@@ -190,6 +204,23 @@ class LocationTest {
 
         // move left one cell
         l.move(actor, -1, 0)
+        l.updateLocation()
+
+        assert(player.results.contains(AppearData("CREATURE", actor.id, actor.x, actor.y)))
+    }
+
+    @Test
+    fun `test player sees an actor appears`() {
+        val l = createSampleLocation(width = 2)
+        val player = Player()
+        l.add(player)
+        l.updateLocation()
+        assert(player.results.size == 3) // two tiles and player
+        // emulate sending updates via network
+        player.results.clear()
+
+        val actor = Actor(ActorType.CREATURE, x = 1, y = 0)
+        l.add(actor)
         l.updateLocation()
 
         assert(player.results.contains(AppearData("CREATURE", actor.id, actor.x, actor.y)))
