@@ -2,6 +2,7 @@ package org.demoth.gameserver
 
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
+import org.demoth.gameserver.api.messaging.DisappearData
 import org.demoth.gameserver.api.messaging.StateChangeData
 import org.demoth.gameserver.model.Actor
 import org.demoth.gameserver.model.Cell
@@ -136,6 +137,27 @@ class LocationTest {
 
         l.updateLocation()
         assert(player.results.isEmpty())
+    }
+
+    @Test
+    fun `test location add player add actor remove actor`() {
+        val l = create2TileLocation()
+        val player = Player()
+        l.add(player)
+        val actor = Actor(ActorType.CREATURE, x = 1, y = 0)
+        l.add(actor)
+        l.updateLocation()
+        // emulate sending updates via network
+        player.results.clear()
+
+        l.remove(actor)
+
+        l.updateLocation()
+        assert(player.results.size == 1)
+        val update = player.results.first()
+        assert(update is DisappearData)
+        val disappearData = update as DisappearData
+        assert(disappearData.id == actor.id)
     }
 
 }
