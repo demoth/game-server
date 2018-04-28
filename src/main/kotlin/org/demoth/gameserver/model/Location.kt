@@ -106,37 +106,43 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
                 val action = command.action
                 if (action is MoveAction) {
                     when (action.direction) {
-                        "n" -> move(player, -1, 0)
-                        "s" -> move(player, 1, 0)
-                        "e" -> move(player, 0, 1)
-                        "w" -> move(player, 0, -1)
+                        "n" -> move(player, 0, -1)
+                        "s" -> move(player, 0, 1)
+                        "e" -> move(player, 1, 0)
+                        "w" -> move(player, -1, 0)
                     }
                 }
             }
         }
     }
 
-    private fun move(player: Player, y: Int, x: Int) {
-        player.x += x
-        player.y += y
+    fun move(actor: Actor, x: Int, y: Int) {
+        board[actor.y]!![actor.x]!!.actors.remove(actor)
+        actor.x += x
+        actor.y += y
+        checkActorPosition(actor)
+        board[actor.y]!![actor.x]!!.actors.add(actor)
     }
 
     fun add(actor: Actor) {
         if (actor is Player) {
             players.add(actor)
         }
-        if (actor.y !in 0..(board.size - 1) || actor.x !in 0..(board[0]!!.size - 1))
-            throw IllegalStateException("Actor added outside board! Actor position : ${actor.x},${actor.y}, board size: ${board[0]?.size},${board.size}")
+        checkActorPosition(actor)
         board[actor.y]!![actor.x]!!.actors.add(actor)
         actors.add(actor)
+    }
+
+    private fun checkActorPosition(actor: Actor) {
+        if (actor.y !in 0..(board.size - 1) || actor.x !in 0..(board[0]!!.size - 1))
+            throw IllegalStateException("Actor added outside board! Actor position : ${actor.x},${actor.y}, board size: ${board[0]?.size},${board.size}")
     }
 
     fun remove(actor: Actor) {
         if (actor is Player) {
             players.remove(actor)
         }
-        if (actor.y !in 0..(board.size - 1) || actor.x !in 0..(board[0]!!.size - 1))
-            throw IllegalStateException("Actor removed outside board! Actor position : ${actor.x},${actor.y}, board size: ${board[0]?.size},${board.size}")
+        checkActorPosition(actor)
         board[actor.y]!![actor.x]!!.actors.remove(actor)
         actors.remove(actor)
     }

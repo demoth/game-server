@@ -9,7 +9,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.LinkedBlockingQueue
 
-class Player : Actor(ActorType.CREATURE) {
+class Player : Actor(ActorType.CREATURE, name = "Player") {
 
     var appeared = false
 

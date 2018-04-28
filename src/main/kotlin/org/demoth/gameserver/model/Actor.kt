@@ -23,19 +23,19 @@ open class Actor(
 
     var x: Int = x
         set(value) {
-            updateField("x", value)
+            updateField("x", value, field)
             field = value
         }
 
     var y: Int = y
         set(value) {
-            updateField("y", value)
+            updateField("y", value, field)
             field = value
         }
 
     var sightRadius = 1
         set(value) {
-            updateField("sightRadius", value)
+            updateField("sightRadius", value, field)
             field = value
         }
 
@@ -45,8 +45,9 @@ open class Actor(
         updates.clear()
     }
 
-    private fun updateField(field: String, value: Int) {
-        updates.add(StateChangeData(id, field, value.toString()))
+    private fun updateField(field: String, newValue: Int, oldValue: Int) {
+        if (newValue != oldValue)
+            updates.add(StateChangeData(id, field, newValue.toString()))
     }
 
     internal fun updateTree(visited: MutableCollection<String>) {
