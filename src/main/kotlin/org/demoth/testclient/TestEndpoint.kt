@@ -1,13 +1,13 @@
-package org.demoth.gameserver
+package org.demoth.testclient
 
-import javax.websocket.*
 import java.io.IOException
 import java.net.URI
+import javax.websocket.*
 
 @ClientEndpoint
 class TestEndpoint @Throws(IOException::class, DeploymentException::class)
 constructor(uri: URI) {
-    internal var userSession: Session? = null
+    private var userSession: Session? = null
     private var messageHandler: MessageHandler? = null
 
     init {
@@ -17,22 +17,18 @@ constructor(uri: URI) {
 
     @OnOpen
     fun onOpen(userSession: Session) {
-        println("opening websocket")
         this.userSession = userSession
     }
 
 
     @OnClose
     fun onClose(userSession: Session, reason: CloseReason) {
-        println("closing websocket")
         this.userSession = null
     }
 
     @OnMessage
     fun onMessage(message: String) {
-        if (this.messageHandler != null) {
-            this.messageHandler!!.handleMessage(message)
-        }
+        this.messageHandler?.handleMessage(message)
     }
 
     fun addMessageHandler(msgHandler: MessageHandler) {
@@ -41,7 +37,12 @@ constructor(uri: URI) {
 
 
     fun sendMessage(message: String) {
-        this.userSession!!.asyncRemote.sendText(message)
+        this.userSession?.asyncRemote?.sendText(message)
+    }
+
+    fun disconnect() {
+        userSession?.close()
+
     }
 
 

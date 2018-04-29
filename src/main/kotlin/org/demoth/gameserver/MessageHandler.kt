@@ -63,7 +63,7 @@ open class MessageHandler : TextWebSocketHandler() {
                 }
                 character.location!!.add(character)
                 LOG.info("Location loaded {}", character.location)
-                session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.x, character.y))))
+                session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.id))))
                 locationWorkerManager!!.runLocation(character.location!!)
                 updateSenderManager!!.startSendingUpdates(character)
             } else if (request is CommandMessage) {

@@ -13,9 +13,9 @@ data class AppearData(
 
 data class DisappearData(var id: String = "") : Message()
 
-data class JoinedMessage(var x: Int = 0, var y: Int = 0) : Message()
+data class JoinedMessage(var id: String = "") : Message()
 
-data class LoggedInMessage(var characters: Collection<String> = emptyList()) : Message()
+data class LoggedInMessage(var characters: List<String> = emptyList()) : Message()
 
 data class StateChangeData(
         var id: String = "",
