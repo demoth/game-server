@@ -36,7 +36,7 @@ object TestClient {
     @JvmStatic
     fun main(args: Array<String>) {
         val mapper = ObjectMapper()
-        log("Welcome to testclient! (q)uit, (c)onnect, (l)ogin, (j)oin, (d)isconnect")
+        log("Welcome to testclient! (q)uit, (c)onnect, (l)ogin, (j)oin, (d)isconnect, (wnse)walk")
         BufferedReader(InputStreamReader(System.`in`)).use {
             var te: TestEndpoint? = null
             var line = it.readLine()
@@ -71,6 +71,9 @@ object TestClient {
                         else
                             JoinMessage(characters?.first()!!)
                         te?.sendMessage(mapper.writeValueAsString(msg))
+                    }
+                    line in (setOf("w", "n", "e", "s")) -> {
+                        te?.sendMessage(mapper.writeValueAsString(CommandMessage(MoveAction(line))))
                     }
                 }
                 line = it.readLine()
@@ -137,8 +140,8 @@ object TestClient {
     }
 
     private fun drawBoard() {
-        (board.size - 1 downTo 0).forEach {
-            board[it].forEach { print(it) }
+        board.forEach {
+            it.forEach { print(it) }
             println()
         }
     }
