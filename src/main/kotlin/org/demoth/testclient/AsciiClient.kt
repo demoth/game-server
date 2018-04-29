@@ -13,11 +13,25 @@ enum class State {
     IN_GAME
 }
 
+const val ESC = "\u001B"
+
+const val NORMAL = ESC + "[0"
+const val BOLD = ESC + "[1"
+const val BLACK = ESC + "[0;40m"  // black background
+const val WHITE = ESC + "[0;37m"  // normal white foreground
+
 object TestClient {
 
     var state = State.OFFLINE
     var characters: List<String>? = null
     var myId: String? = null
+    private val objects: MutableMap<String, AppearData> = mutableMapOf()
+    private var board: Array<Array<Char>> = arrayOf()
+
+    private var minx = 0
+    private var maxx = 16
+    private var miny = 0
+    private var maxy = 16
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -87,10 +101,61 @@ object TestClient {
         }
     }
 
+    private fun updateBoard() {
+        objects.values.forEach {
+            if (it.x < minx) {
+                minx = it.x
+            }
+            if (it.x > maxx) {
+                maxx = it.x
+            }
+
+            if (it.y < miny) {
+                miny = it.x
+            }
+            if (it.y > maxy) {
+                maxy = it.y
+            }
+        }
+        board = Array(maxy - miny + 1, {
+            Array(maxx - minx + 1, { ' ' })
+        })
+        objects.values.sortedBy {
+            when (it.object_type) {
+                "TILE" -> -1
+                "CREATURE" -> 1
+                else -> 0
+            }
+        }.forEach {
+            val ch = when (it.object_type) {
+                "TILE" -> '.'
+                "CREATURE" -> '@'
+                else -> ' '
+            }
+            board[it.y][it.x] = ch
+        }
+    }
+
+    private fun drawBoard() {
+        (board.size - 1 downTo 0).forEach {
+            board[it].forEach { print(it) }
+            println()
+        }
+    }
+
     fun handleUpdateMessage(update: Message) {
         when (update) {
             is AppearData -> {
-
+                objects[update.id] = update
+            }
+            is DisappearData -> {
+                objects.remove(update.id)
+            }
+            is StateChangeData -> {
+                when (update.field) {
+                    "x" -> objects[update.id]?.x = update.new_value.toInt()
+                    "y" -> objects[update.id]?.y = update.new_value.toInt()
+                }
             }
         }
     }
@@ -117,6 +182,10 @@ object TestClient {
                         msg.updates.forEach {
                             handleUpdateMessage(it)
                         }
+                        print("${ESC}c")
+                        updateBoard()
+                        drawBoard()
+                        log("command:")
                     }
                     else -> log("msg = $msg")
                 }
@@ -125,4 +194,8 @@ object TestClient {
             }
         }
     }
+}
+
+fun main(args: Array<String>) {
+    TestClient.main(args)
 }
