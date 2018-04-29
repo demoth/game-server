@@ -47,7 +47,7 @@ open class MessageHandler : TextWebSocketHandler() {
                 if (user != null) {
                     val characters = userService!!.register(user, session.id)
                     session.sendMessage(TextMessage(mapper.writeValueAsString(LoggedInMessage(characters))))
-                    LOG.debug("User logged in: {}", session.id)
+                    LOG.info("User logged in: {}", session.id)
                 } else {
                     // LOG.debug("Wrong login/pass");
                     // session.sendMessage(new FromServerMessage(ERROR, "Wrong login/pass").toText(mapper));
@@ -57,12 +57,12 @@ open class MessageHandler : TextWebSocketHandler() {
                 val character = actorService!!.loadCharacter(request.character_id)
                 character.session = session
                 players[session.id] = character
-                LOG.debug("Character joined {}", character)
+                LOG.info("Character joined {}", character)
                 if (character.location == null) {
                     actorService!!.setLocation(character)
                 }
                 character.location!!.add(character)
-                LOG.debug("Location loaded {}", character.location)
+                LOG.info("Location loaded {}", character.location)
                 session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.x, character.y))))
                 locationWorkerManager!!.runLocation(character.location!!)
                 updateSenderManager!!.startSendingUpdates(character)
@@ -76,7 +76,6 @@ open class MessageHandler : TextWebSocketHandler() {
     }
 
     companion object {
-
         private val LOG = LoggerFactory.getLogger(MessageHandler::class.java)
     }
 }

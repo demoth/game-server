@@ -1,7 +1,7 @@
 package org.demoth.gameserver
 
-import org.demoth.gameserver.model.Location
 import org.demoth.gameserver.model.Player
+import org.demoth.gameserver.model.createSampleLocation
 import org.springframework.stereotype.Component
 
 @Component
@@ -13,6 +13,6 @@ open class ActorService {
     }
 
     fun setLocation(character: Player) {
-        character.location = Location(arrayOf())
+        character.location = createSampleLocation(3, 3)
     }
 }

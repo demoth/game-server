@@ -21,7 +21,7 @@ open class UpdateSenderManager {
 
     fun startSendingUpdates(player: Player) {
         val sender = Thread {
-            LOG.debug("Started sending updates for player {} ", player.name)
+            LOG.info("Started sending updates for player {} ", player.name)
             while (true) {
                 try {
                     val change = player.update
@@ -39,7 +39,7 @@ open class UpdateSenderManager {
             }
         }
         players[player] = sender
-        sender.name = "Update sender for " + player.name!!
+        sender.name = "Update sender for " + player.name
         sender.start()
     }
 

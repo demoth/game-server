@@ -4,23 +4,13 @@ import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
 import org.demoth.gameserver.api.messaging.*
 import org.demoth.gameserver.model.Actor
-import org.demoth.gameserver.model.Cell
 import org.demoth.gameserver.model.Location
 import org.demoth.gameserver.model.Player
+import org.demoth.gameserver.model.createSampleLocation
 import org.junit.Assert.fail
 import org.junit.Test
 
 class LocationTest {
-
-    private fun createSampleLocation(width: Int = 1, height: Int = 1): Location {
-        return Location(Array<Array<Cell?>?>(height, {
-            val row = mutableListOf<Cell>()
-            (0 until width).forEach {
-                row.add(Cell(Actor(ActorType.TILE)))
-            }
-            row.toTypedArray()
-        }))
-    }
 
     @Test(expected = IllegalStateException::class)
     fun `test empty board` () {

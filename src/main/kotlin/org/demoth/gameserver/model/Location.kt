@@ -157,3 +157,13 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
     }
 
 }
+
+fun createSampleLocation(width: Int = 1, height: Int = 1): Location {
+    return Location(Array<Array<Cell?>?>(height, {
+        val row = mutableListOf<Cell>()
+        (0 until width).forEach {
+            row.add(Cell(Actor(ActorType.TILE)))
+        }
+        row.toTypedArray()
+    }))
+}

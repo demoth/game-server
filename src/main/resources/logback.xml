@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.demoth.aworlds" level="DEBUG">
+    <logger name="org.demoth.gameserver" level="DEBUG">
 
     </logger>
 
