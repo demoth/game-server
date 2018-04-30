@@ -5,10 +5,7 @@ import org.demoth.gameserver.api.messaging.*
 import org.demoth.gameserver.model.Player
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.socket.CloseStatus
-import org.springframework.web.socket.TextMessage
-import org.springframework.web.socket.WebSocketMessage
-import org.springframework.web.socket.WebSocketSession
+import org.springframework.web.socket.*
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.util.concurrent.ConcurrentHashMap
 
@@ -39,9 +36,17 @@ open class MessageHandler : TextWebSocketHandler() {
     }
 
     override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
-        LOG.debug("Received: {} from {}", message.payload, session.id)
+        LOG.debug("Received: {} from {}", message::class, session.id)
         try {
-            val request = mapper.readValue(message.payload.toString(), Message::class.java)
+
+            val request = when (message) {
+                is TextMessage -> mapper.readValue(message.payload.toString(), Message::class.java)
+                is BinaryMessage -> mapper.readValue(String(message.payload.array()), Message::class.java)
+                else -> {
+                    LOG.debug("Unsupported message type")
+                    return
+                }
+            }
             if (request is LoginMessage) {
                 val user = userService!!.login(request.login, request.password)
                 if (user != null) {
