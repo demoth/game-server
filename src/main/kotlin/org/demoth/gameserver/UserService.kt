@@ -12,7 +12,7 @@ open class UserService {
     private val currentUsers = HashMap<String, User>()
 
     fun login(user: String, pass: String): User? {
-        return if ("demoth" == user) User() else null
+        return if (user == "test" && pass == "test") User() else null
     }
 
     fun register(user: User, id: String): List<String> {
