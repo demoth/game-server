@@ -67,7 +67,7 @@ class LocationTest {
         val updates = l.updateLocation()
         // x is changed, y is not
         assert(updates.size == 1)
-        assert(updates[0] == StateChangeData(actor.id, "x", "1"))
+        assert(updates[0] == Movement(actor.id, 1, 0))
 
         // check that board is updated as well
         assert(l.board[0]!![1]!!.actors.contains(actor))
@@ -113,7 +113,7 @@ class LocationTest {
     fun `test add actor outside board`() {
         val l = createSampleLocation()
         val actor = Actor(ActorType.CREATURE)
-        actor.x = 2
+        actor.move(2, actor.y)
         l.add(actor)
         fail("Should have not added actor!")
     }
@@ -185,6 +185,7 @@ class LocationTest {
         l.move(actor, 1, 0)
         l.updateLocation()
 
+        assert(player.results.contains(Movement(actor.id, 2, 0)))
         assert(player.results.contains(DisappearData(actor.id)))
     }
 

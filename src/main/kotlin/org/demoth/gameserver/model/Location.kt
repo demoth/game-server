@@ -18,8 +18,7 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
         board.forEachIndexed { y, row ->
             row?.forEachIndexed { x, cell ->
                 cell?.actors?.forEach {
-                    it.x = x
-                    it.y = y
+                    it.move(x, y)
                     it.clearUpdates()
                     actors.add(it)
                 }
@@ -27,8 +26,8 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
         }
     }
 
-    fun updateLocation(): ArrayList<Message> {
-        val result = ArrayList<Message>()
+    fun updateLocation(): List<Update> {
+        val result = ArrayList<Update>()
         // invoke onUpdate() callback on the whole tree
         updateTree(TreeSet())
         // process requests for actors
@@ -65,7 +64,7 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
         return result
     }
 
-    private fun filterUpdates(player: Player, result: Collection<Message>): Stream<Message> {
+    private fun filterUpdates(player: Player, result: Collection<Update>): Stream<Update> {
         // todo: add hook to encapsulate filterUpdates() game logic
         return result.stream()
     }
@@ -104,7 +103,7 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
                     performed = true
                 }
 
-                println("executing: $command")
+                //println("executing: $command")
                 val action = command.action
                 if (action is MoveAction) {
                     when (action.direction) {
@@ -126,8 +125,7 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
                 || newY >= board.size)
             return
         board[actor.y]!![actor.x]!!.actors.remove(actor)
-        actor.x = newX
-        actor.y = newY
+        actor.move(newX, newY)
         checkActorPosition(actor)
         board[actor.y]!![actor.x]!!.actors.add(actor)
     }

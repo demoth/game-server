@@ -1,8 +1,8 @@
 package org.demoth.gameserver
 
 import org.demoth.gameserver.api.messaging.AppearData
-import org.demoth.gameserver.api.messaging.Message
 import org.demoth.gameserver.api.messaging.StateChangeData
+import org.demoth.gameserver.api.messaging.Update
 import org.demoth.gameserver.model.Location
 import org.demoth.gameserver.model.Player
 import org.slf4j.LoggerFactory
@@ -53,7 +53,7 @@ open class LocationWorkerManager {
      * For each player filter updates and put them to the send queue.
      */
     @Deprecated("")
-    private fun filterUpdates(updates: Collection<Message>, players: Collection<Player>) {
+    private fun filterUpdates(updates: Collection<Update>, players: Collection<Player>) {
         players.forEach { player ->
             updates.stream().filter { message ->
                 if (message is StateChangeData) {

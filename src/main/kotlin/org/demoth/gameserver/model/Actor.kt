@@ -2,8 +2,9 @@ package org.demoth.gameserver.model
 
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong
-import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.Movement
 import org.demoth.gameserver.api.messaging.StateChangeData
+import org.demoth.gameserver.api.messaging.Update
 import java.util.*
 
 open class Actor(
@@ -17,21 +18,21 @@ open class Actor(
     private val longProps = EnumMap<PropertyLong, Long>(PropertyLong::class.java)
 
     // updates accumulated during current frame
-    private val updates = ArrayList<Message>()
+    private val updates = ArrayList<Update>()
 
     // common properties
 
     var x: Int = x
-        set(value) {
-            updateField("x", value, field)
-            field = value
-        }
+        private set
 
     var y: Int = y
-        set(value) {
-            updateField("y", value, field)
-            field = value
-        }
+        private set
+
+    fun move(x: Int, y: Int) {
+        this.x = x
+        this.y = y
+        updates.add(Movement(id, x, y))
+    }
 
     var sightRadius = 1
         set(value) {
@@ -56,7 +57,7 @@ open class Actor(
                 .forEach { it.updateTree(visited) }
     }
 
-    protected fun collectResults(results: MutableCollection<Message>, visited: MutableCollection<String>) {
+    protected fun collectResults(results: MutableCollection<Update>, visited: MutableCollection<String>) {
         results.addAll(updates)
         updates.clear()
         actors.filter { visited.add(it.id) }

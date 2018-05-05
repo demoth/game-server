@@ -3,7 +3,7 @@ package org.demoth.gameserver.model
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.messaging.AppearData
 import org.demoth.gameserver.api.messaging.CommandMessage
-import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.Update
 import org.springframework.web.socket.WebSocketSession
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -24,13 +24,13 @@ class Player : Actor(ActorType.CREATURE, name = "Player") {
     // scope - frame
     var sightLastFrame: MutableSet<String> = TreeSet()
 
-    val results = LinkedBlockingQueue<Message>()
+    val results = LinkedBlockingQueue<Update>()
 
     var location: Location? = null
 
     var session: WebSocketSession? = null
 
-    val update: Message
+    val update: Update
         @Throws(InterruptedException::class)
         get() = results.take()
 
@@ -38,7 +38,7 @@ class Player : Actor(ActorType.CREATURE, name = "Player") {
         commands.add(command)
     }
 
-    fun enqueueResponse(response: Message) {
+    fun enqueueResponse(response: Update) {
         results.add(response)
     }
 
