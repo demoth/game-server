@@ -38,15 +38,15 @@ open class MessageHandler : TextWebSocketHandler() {
     override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
         LOG.debug("Received: {} from {}", message::class, session.id)
         try {
-
-            val request = when (message) {
-                is TextMessage -> mapper.readValue(message.payload.toString(), Message::class.java)
-                is BinaryMessage -> mapper.readValue(String(message.payload.array()), Message::class.java)
+            val body = when (message) {
+                is TextMessage -> message.payload.toString()
+                is BinaryMessage -> String(message.payload.array())
                 else -> {
                     LOG.debug("Unsupported message type")
                     return
                 }
             }
+            val request = mapper.readValue(body, Message::class.java)
             if (request is LoginMessage) {
                 val user = userService!!.login(request.login, request.password)
                 if (user != null) {
@@ -71,7 +71,7 @@ open class MessageHandler : TextWebSocketHandler() {
                 session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.id))))
                 locationWorkerManager!!.runLocation(character.location!!)
                 updateSenderManager!!.startSendingUpdates(character)
-            } else if (request is CommandMessage) {
+            } else if (request is MoveAction) {
                 players[session.id]?.enqueueRequest(request)
             }
         } catch (e: Exception) {

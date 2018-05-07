@@ -73,7 +73,7 @@ object TestClient {
                         te?.sendMessage(mapper.writeValueAsString(msg))
                     }
                     line in (setOf("w", "n", "e", "s")) -> {
-                        te?.sendMessage(mapper.writeValueAsString(CommandMessage(MoveAction(line))))
+                        te?.sendMessage(mapper.writeValueAsString(MoveAction(line)))
                     }
                 }
                 line = it.readLine()

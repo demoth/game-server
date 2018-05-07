@@ -14,6 +14,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         JsonSubTypes.Type(value = StateChangeData::class, name = "change"),
         JsonSubTypes.Type(value = Movement::class, name = "movement"),
         JsonSubTypes.Type(value = DisappearData::class, name = "disappear"),
-        JsonSubTypes.Type(value = CommandMessage::class, name = "command"),
         JsonSubTypes.Type(value = MoveAction::class, name = "move"))
 abstract class Message

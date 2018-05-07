@@ -91,7 +91,7 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
             while (true) {
                 // execute player's commands until there are no commands,
                 // or cannot do anything (like when paralyzed)
-                var command: CommandMessage?
+                var command: Message?
                 if (player.commands.isEmpty())
                     break
 
@@ -103,16 +103,17 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
                     performed = true
                 }
 
-                //println("executing: $command")
-                val action = command.action
-                if (action is MoveAction) {
-                    when (action.direction) {
+                println("executing: $command")
+                println("player pos before: ${player.x}:${player.y}")
+                if (command is MoveAction) {
+                    when (command.direction) {
                         "n" -> move(player, 0, -1)
                         "s" -> move(player, 0, 1)
                         "e" -> move(player, 1, 0)
                         "w" -> move(player, -1, 0)
                     }
                 }
+                println("player pos after: ${player.x}:${player.y}")
             }
         }
     }

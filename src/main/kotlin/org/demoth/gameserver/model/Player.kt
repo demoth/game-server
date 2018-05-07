@@ -2,7 +2,7 @@ package org.demoth.gameserver.model
 
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.messaging.AppearData
-import org.demoth.gameserver.api.messaging.CommandMessage
+import org.demoth.gameserver.api.messaging.Message
 import org.demoth.gameserver.api.messaging.Update
 import org.springframework.web.socket.WebSocketSession
 import java.util.*
@@ -13,7 +13,7 @@ class Player : Actor(ActorType.CREATURE, name = "Player") {
 
     var appeared = false
 
-    var commands = ConcurrentLinkedQueue<CommandMessage>()
+    var commands = ConcurrentLinkedQueue<Message>()
 
     // this cache holds appear data sent from server to client.
     // scope - session
@@ -34,7 +34,7 @@ class Player : Actor(ActorType.CREATURE, name = "Player") {
         @Throws(InterruptedException::class)
         get() = results.take()
 
-    fun enqueueRequest(command: CommandMessage) {
+    fun enqueueRequest(command: Message) {
         commands.add(command)
     }
 

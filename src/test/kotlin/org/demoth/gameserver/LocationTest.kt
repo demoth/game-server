@@ -230,7 +230,7 @@ class LocationTest {
         val l = createSampleLocation(width = 2)
         val player = Player()
         l.add(player)
-        player.enqueueRequest(CommandMessage(MoveAction("e")))
+        player.enqueueRequest(MoveAction("e"))
         l.updateLocation()
         assert(player.x == 1)
         assert(!l.board[0]!![0]!!.actors.contains(player))
@@ -243,7 +243,7 @@ class LocationTest {
         val l = createSampleLocation()
         val player = Player()
         l.add(player)
-        player.enqueueRequest(CommandMessage(MoveAction("e")))
+        player.enqueueRequest(MoveAction("e"))
         l.updateLocation()
         // we expect nothing happens
         assert(player.x == 0)
