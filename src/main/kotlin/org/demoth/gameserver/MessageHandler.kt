@@ -11,18 +11,17 @@ import java.util.concurrent.ConcurrentHashMap
 
 open class MessageHandler : TextWebSocketHandler() {
     @Autowired
-    private var userService: UserService? = null
+    lateinit var userService: UserService
     @Autowired
-    private var actorService: ActorService? = null
+    lateinit var actorService: ActorService
     @Autowired
-    private var locationWorkerManager: LocationWorkerManager? = null
+    lateinit var locationWorkerManager: LocationWorkerManager
     @Autowired
-    private var updateSenderManager: UpdateSenderManager? = null
+    lateinit var updateSenderManager: UpdateSenderManager
 
     private val mapper: ObjectMapper = ObjectMapper()
     private var players = ConcurrentHashMap<String, Player>()
 
-    @Throws(Exception::class)
     override fun afterConnectionClosed(session: WebSocketSession?, status: CloseStatus?) {
         if (session == null || status == null)
             return
@@ -30,7 +29,7 @@ open class MessageHandler : TextWebSocketHandler() {
         players[session.id]?.let { player ->
             player.location?.remove(player)
             players.remove(session.id)
-            updateSenderManager?.stopSendingUpdates(player)
+            updateSenderManager.stopSendingUpdates(player)
             LOG.info("Disconnected: {}", session.id)
         }
     }
@@ -48,9 +47,9 @@ open class MessageHandler : TextWebSocketHandler() {
             }
             val request = mapper.readValue(body, Message::class.java)
             if (request is LoginMessage) {
-                val user = userService!!.login(request.login, request.password)
+                val user = userService.login(request.login, request.password)
                 if (user != null) {
-                    val characters = userService!!.register(user, session.id)
+                    val characters = userService.register(user, session.id)
                     session.sendMessage(TextMessage(mapper.writeValueAsString(LoggedInMessage(characters))))
                     LOG.info("User logged in: {}", session.id)
                 } else {
@@ -59,18 +58,18 @@ open class MessageHandler : TextWebSocketHandler() {
                 }
 
             } else if (request is JoinMessage) {
-                val character = actorService!!.loadCharacter(request.character_id)
+                val character = actorService.loadCharacter(request.character_id)
                 character.session = session
                 players[session.id] = character
                 LOG.info("Character joined {}", character)
                 if (character.location == null) {
-                    actorService!!.setLocation(character)
+                    actorService.setLocation(character)
                 }
                 character.location!!.add(character)
                 LOG.info("Location loaded {}", character.location)
                 session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.id))))
-                locationWorkerManager!!.runLocation(character.location!!)
-                updateSenderManager!!.startSendingUpdates(character)
+                locationWorkerManager.runLocation(character.location!!)
+                updateSenderManager.startSendingUpdates(character)
             } else if (request is MoveAction) {
                 players[session.id]?.enqueueRequest(request)
             }
