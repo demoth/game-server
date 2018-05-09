@@ -239,6 +239,22 @@ class LocationTest {
     }
 
     @Test
+    fun `test player command move change visible area`() {
+        val l = createSampleLocation(width = 4)
+        val player = Player(1, 0)
+        l.add(player)
+        l.updateLocation()
+        player.results.clear()
+
+        player.enqueueRequest(MoveAction("e"))
+        l.updateLocation()
+        // (3,0) tile become visible
+        assert(player.results.any { it is AppearData && it.x == 3 && it.y == 0 })
+        // (0,0) tile become not visible
+        assert(player.results.any { it is DisappearData && it.id == l.board[0]!![0]!!.actors.first().id })
+    }
+
+    @Test
     fun `test player command move out of board borders`() {
         val l = createSampleLocation()
         val player = Player()

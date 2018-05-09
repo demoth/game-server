@@ -75,6 +75,6 @@ open class Actor(
     }
 
     override fun toString(): String {
-        return "Actor(type=$type, name='$name', id='$id')"
+        return "Actor(pos='$x:$y', name='$name', type=$type)"
     }
 }
