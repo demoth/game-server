@@ -10,6 +10,9 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.collections.HashSet
 
+/*
+    Location.actors are basically cells, that contain other actors
+ */
 class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
     // players are kept to manage connection
     val players = ConcurrentLinkedQueue<Player>()
@@ -22,7 +25,6 @@ class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
                 cell?.actors?.forEach {
                     it.move(x, y)
                     it.clearUpdates()
-                    actors.add(it)
                 }
                 cell?.let { actors.add(it) }
             }
@@ -143,7 +145,6 @@ class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
         }
         checkActorPosition(actor)
         board[actor.y]!![actor.x]!!.actors.add(actor)
-        actors.add(actor)
     }
 
     private fun checkActorPosition(actor: Actor) {
@@ -158,7 +159,6 @@ class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
         }
         checkActorPosition(actor)
         board[actor.y]!![actor.x]!!.actors.remove(actor)
-        actors.remove(actor)
     }
 
 }

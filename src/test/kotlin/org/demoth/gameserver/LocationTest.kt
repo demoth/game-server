@@ -33,7 +33,7 @@ class LocationTest {
     fun `test add actor to board`() {
         val l = createSampleLocation()
         l.add(Actor(ActorType.CREATURE))
-        assert(l.actors.size == 3) // cell floor and creature
+        assert(l.actors.size == 1)
         assert(l.board[0]!![0]!!.actors.size == 2)
     }
 
@@ -44,8 +44,7 @@ class LocationTest {
         l.add(actor)
 
         l.remove(actor)
-        assert(l.actors.any { it.type == ActorType.CELL })
-        assert(l.actors.any { it.type == ActorType.FLOOR })
+        assert(l.actors[0].type == ActorType.CELL)
         assert(l.board[0]!![0]!!.actors.size == 1)
         assert(l.board[0]!![0]!!.actors.first().type == ActorType.FLOOR)
     }
@@ -123,9 +122,8 @@ class LocationTest {
         val l = createSampleLocation()
         l.add(Player())
 
-        assert(l.actors.size == 3)
+        assert(l.actors.size == 1)
         assert(l.players.size == 1)
-
         assert(l.board[0]!![0]!!.actors.size == 2)
     }
 
