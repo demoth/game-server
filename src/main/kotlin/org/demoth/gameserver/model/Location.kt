@@ -2,6 +2,8 @@ package org.demoth.gameserver.model
 
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.messaging.*
+import java.lang.Integer.max
+import java.lang.Integer.min
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Consumer
@@ -73,13 +75,15 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
         // todo: add hook to encapsulate getPlayerSight() game logic
         val result = HashSet<Actor>()
         val sightRadius = player.sightRadius
-        val left = if (player.x - sightRadius < 0) 0 else player.x - sightRadius
-        val up = if (player.y - sightRadius < 0) 0 else player.y - sightRadius
-        val right = if (player.x + sightRadius > board[0]!!.size - 1) board[0]!!.size - 1 else player.x + sightRadius
-        val down = if (player.y + sightRadius > board.size - 1) board.size - 1 else player.y + sightRadius
+        val left = max(0, player.x - sightRadius)
+        val up = max(0, player.y - sightRadius)
+        val right = min(board[0]!!.size - 1, player.x + sightRadius)
+        val down = min(board.size - 1, player.y + sightRadius)
         (up..down).forEach { y ->
             (left..right).forEach { x ->
-                result.addAll(board[y]!![x]!!.actors)
+                board[y]!![x]?.actors?.let {
+                    result.addAll(it)
+                }
             }
         }
         return result
@@ -123,7 +127,8 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
         val newY = actor.y + y
         if (newX < 0 || newY < 0
                 || newX >= board[0]!!.size
-                || newY >= board.size)
+                || newY >= board.size
+                || board[newY]!![newX] == null)
             return
         board[actor.y]!![actor.x]!!.actors.remove(actor)
         actor.move(newX, newY)

@@ -3,22 +3,19 @@ package org.demoth.gameserver
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
 import org.demoth.gameserver.api.messaging.*
-import org.demoth.gameserver.model.Actor
-import org.demoth.gameserver.model.Location
-import org.demoth.gameserver.model.Player
-import org.demoth.gameserver.model.createSampleLocation
+import org.demoth.gameserver.model.*
 import org.junit.Assert.fail
 import org.junit.Test
 
 class LocationTest {
 
     @Test(expected = IllegalStateException::class)
-    fun `test empty board` () {
+    fun `test empty board`() {
         Location(emptyArray())
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `test board with empty rows` () {
+    fun `test board with empty rows`() {
         Location(arrayOf(emptyArray(), emptyArray()))
     }
 
@@ -131,7 +128,7 @@ class LocationTest {
 
     @Test
     fun `test add player add actor`() {
-        val l = createSampleLocation(width = 2)
+        val l = createSampleLocation(width = 3)
         val player = Player()
         l.add(player)
         l.add(Actor(ActorType.CREATURE, x = 1, y = 0))
@@ -265,6 +262,30 @@ class LocationTest {
         assert(player.x == 0)
         assert(l.board[0]!![0]!!.actors.contains(player))
         assert(player.commands.isEmpty())
+    }
+
+    @Test
+    fun `test location with null cell`() {
+        val l = Location(arrayOf(arrayOf<Cell?>(null)))
+        l.updateLocation()
+    }
+
+    @Test
+    fun `test player in location with null cell`() {
+        val l = Location(arrayOf(arrayOf(Cell(Actor(ActorType.TILE)), null)))
+        val player = Player()
+        l.add(player)
+        l.updateLocation()
+    }
+
+    @Test
+    fun `test player moves location with null cell`() {
+        val l = Location(arrayOf(arrayOf(Cell(Actor(ActorType.TILE)), null)))
+        val player = Player()
+        l.add(player)
+        l.updateLocation()
+        player.enqueueRequest(MoveAction("e"))
+        l.updateLocation()
     }
 
 

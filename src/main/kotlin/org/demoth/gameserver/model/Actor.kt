@@ -51,7 +51,7 @@ open class Actor(
             updates.add(StateChangeData(id, field, newValue.toString()))
     }
 
-    internal fun updateTree(visited: MutableCollection<String>) {
+    fun updateTree(visited: MutableCollection<String>) {
         onUpdate?.invoke()
         actors.filter { visited.add(it.id) }
                 .forEach { it.updateTree(visited) }
