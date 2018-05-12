@@ -3,7 +3,10 @@ package org.demoth.gameserver
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
 import org.demoth.gameserver.api.messaging.*
-import org.demoth.gameserver.model.*
+import org.demoth.gameserver.model.Actor
+import org.demoth.gameserver.model.Location
+import org.demoth.gameserver.model.Player
+import org.demoth.gameserver.model.createSampleLocation
 import org.junit.Assert.fail
 import org.junit.Test
 
@@ -30,8 +33,8 @@ class LocationTest {
     fun `test add actor to board`() {
         val l = createSampleLocation()
         l.add(Actor(ActorType.CREATURE))
-        assert(l.actors.size == 2)
-        assert(l.board[0]?.get(0)?.actors?.size == 2)
+        assert(l.actors.size == 3) // cell floor and creature
+        assert(l.board[0]!![0]!!.actors.size == 2)
     }
 
     @Test
@@ -41,10 +44,10 @@ class LocationTest {
         l.add(actor)
 
         l.remove(actor)
-        assert(l.actors.size == 1)
-        assert(l.actors[0].type == ActorType.TILE)
+        assert(l.actors.any { it.type == ActorType.CELL })
+        assert(l.actors.any { it.type == ActorType.FLOOR })
         assert(l.board[0]!![0]!!.actors.size == 1)
-        assert(l.board[0]!![0]!!.actors.first().type == ActorType.TILE)
+        assert(l.board[0]!![0]!!.actors.first().type == ActorType.FLOOR)
     }
 
     @Test
@@ -120,7 +123,7 @@ class LocationTest {
         val l = createSampleLocation()
         l.add(Player())
 
-        assert(l.actors.size == 2)
+        assert(l.actors.size == 3)
         assert(l.players.size == 1)
 
         assert(l.board[0]!![0]!!.actors.size == 2)
@@ -266,13 +269,13 @@ class LocationTest {
 
     @Test
     fun `test location with null cell`() {
-        val l = Location(arrayOf(arrayOf<Cell?>(null)))
+        val l = Location(arrayOf(arrayOf<Actor?>(null)))
         l.updateLocation()
     }
 
     @Test
     fun `test player in location with null cell`() {
-        val l = Location(arrayOf(arrayOf(Cell(Actor(ActorType.TILE)), null)))
+        val l = Location(arrayOf(arrayOf(Actor(ActorType.CELL), null)))
         val player = Player()
         l.add(player)
         l.updateLocation()
@@ -280,7 +283,7 @@ class LocationTest {
 
     @Test
     fun `test player moves location with null cell`() {
-        val l = Location(arrayOf(arrayOf(Cell(Actor(ActorType.TILE)), null)))
+        val l = Location(arrayOf(arrayOf(Actor(ActorType.CELL), null)))
         val player = Player()
         l.add(player)
         l.updateLocation()

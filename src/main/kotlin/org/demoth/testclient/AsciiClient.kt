@@ -89,7 +89,7 @@ object TestClient {
     private fun login(te: TestEndpoint, mapper: ObjectMapper, params: List<String>) {
         val msg =
                 if (params.size < 3)
-                    LoginMessage("demoth", "cadaver")
+                    LoginMessage("test", "test")
                 else
                     LoginMessage(params[1], params[2])
         te.sendMessage(mapper.writeValueAsString(msg))

@@ -10,7 +10,7 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.collections.HashSet
 
-class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
+class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
     // players are kept to manage connection
     val players = ConcurrentLinkedQueue<Player>()
 
@@ -24,6 +24,7 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
                     it.clearUpdates()
                     actors.add(it)
                 }
+                cell?.let { actors.add(it) }
             }
         }
     }
@@ -71,7 +72,7 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
         return result.stream()
     }
 
-    private fun getPlayerSight(player: Player, board: Array<Array<Cell?>?>): Set<Actor> {
+    private fun getPlayerSight(player: Player, board: Array<Array<Actor?>?>): Set<Actor> {
         // todo: add hook to encapsulate getPlayerSight() game logic
         val result = HashSet<Actor>()
         val sightRadius = player.sightRadius
@@ -163,10 +164,12 @@ class Location(var board: Array<Array<Cell?>?>) : Actor(ActorType.LOCATION) {
 }
 
 fun createSampleLocation(width: Int = 1, height: Int = 1): Location {
-    return Location(Array<Array<Cell?>?>(height, {
-        val row = mutableListOf<Cell>()
+    return Location(Array<Array<Actor?>?>(height, {
+        val row = mutableListOf<Actor>()
         (0 until width).forEach {
-            row.add(Cell(Actor(ActorType.TILE)))
+            val cell = Actor(ActorType.CELL)
+            cell.actors.add(Actor(ActorType.FLOOR))
+            row.add(cell)
         }
         row.toTypedArray()
     }))

@@ -7,8 +7,10 @@ enum class PropertyLong {
 }
 
 enum class ActorType {
-    TILE,
+    FLOOR,
     LOCATION,
     CREATURE,
-    EFFECT
+    EFFECT,
+    REGION,
+    CELL,
 }
