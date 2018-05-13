@@ -1,12 +1,8 @@
-package org.demoth.gameserver
+package org.demoth.gameserver.model
 
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
 import org.demoth.gameserver.api.messaging.*
-import org.demoth.gameserver.model.Actor
-import org.demoth.gameserver.model.Location
-import org.demoth.gameserver.model.Player
-import org.demoth.gameserver.model.createSampleLocation
 import org.junit.Assert.fail
 import org.junit.Test
 
