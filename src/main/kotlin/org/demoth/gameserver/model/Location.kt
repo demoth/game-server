@@ -10,10 +10,12 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.collections.HashSet
 
+typealias Board = Array<Array<Actor?>?>
+
 /*
     Location.actors are basically cells, that contain other actors
  */
-class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
+class Location(var board: Board) : Actor(ActorType.LOCATION) {
     // players are kept to manage connection
     val players = ConcurrentLinkedQueue<Player>()
 
@@ -74,7 +76,7 @@ class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
         return result.stream()
     }
 
-    private fun getPlayerSight(player: Player, board: Array<Array<Actor?>?>): Set<Actor> {
+    private fun getPlayerSight(player: Player, board: Board): Set<Actor> {
         // todo: add hook to encapsulate getPlayerSight() game logic
         val result = HashSet<Actor>()
         val sightRadius = player.sightRadius
@@ -164,7 +166,7 @@ class Location(var board: Array<Array<Actor?>?>) : Actor(ActorType.LOCATION) {
 }
 
 fun createSampleLocation(width: Int = 1, height: Int = 1): Location {
-    return Location(Array<Array<Actor?>?>(height, {
+    return Location(Board(height, {
         val row = mutableListOf<Actor>()
         (0 until width).forEach {
             val cell = Actor(ActorType.CELL)
