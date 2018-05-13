@@ -113,10 +113,10 @@ private fun connectRegions(location: Location, r: RandomI, notConnected: Mutable
     if (destinations.isNotEmpty() && currentCell != null) {
         // todo: make several connections
         val endingGate = destinations[0]
-        location.add(startingGate)
-        location.add(endingGate)
-        notConnected.remove(endingGate.actors[2])
-        connected.add(endingGate.actors[2])
+        location.actors.add(startingGate)
+        location.actors.add(endingGate)
+        notConnected.remove(endingGate.actors[1].actors.find { it.type == ActorType.REGION })
+        connected.add(endingGate.actors[1].actors.find { it.type == ActorType.REGION }!!)
         connected.add(maze)
         location.actors.add(maze)
     } else {
