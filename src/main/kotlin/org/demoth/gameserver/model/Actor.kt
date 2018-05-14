@@ -6,13 +6,22 @@ import org.demoth.gameserver.api.messaging.Movement
 import org.demoth.gameserver.api.messaging.StateChangeData
 import org.demoth.gameserver.api.messaging.Update
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
+
+// todo make something better
+object IdGenerator {
+    private val current = AtomicLong()
+    fun newUUID(): String {
+        return current.incrementAndGet().toString()
+    }
+}
 
 open class Actor(
         val type: ActorType,
         var name: String = "",
         x: Int = 0,
         y: Int = 0,
-        val id: String = UUID.randomUUID().toString(),
+        val id: String = IdGenerator.newUUID(),
         var onUpdate: (() -> Unit)? = null) {
 
     private val longProps = EnumMap<PropertyLong, Long>(PropertyLong::class.java)

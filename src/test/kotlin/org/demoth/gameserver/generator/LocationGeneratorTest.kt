@@ -45,6 +45,7 @@ class LocationGeneratorTest {
         }
     }
 
+
     @Test
     fun `test 1x1 location`() {
         val loc1x1 = generateLocation(1, 1, JavaRandom(), 1, 1, 1, 1, 1)
@@ -113,4 +114,10 @@ class LocationGeneratorTest {
     }
 
 
+    @Test
+    fun `test 1000x`() {
+        (0..10000).forEach {
+            val loc = generateLocation(10, 10, JavaRandom())
+        }
+    }
 }
