@@ -2,6 +2,7 @@ package org.demoth.gameserver
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.web.socket.WebSocketHandler
@@ -12,6 +13,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 
 @EnableWebSocket
 @Configuration
+@ComponentScan(basePackages = ["org.demoth.gameserver"])
 open class WebSocketConfig : WebSocketConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {

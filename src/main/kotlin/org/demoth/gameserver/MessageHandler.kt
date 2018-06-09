@@ -41,7 +41,7 @@ open class MessageHandler : TextWebSocketHandler() {
                 is TextMessage -> message.payload.toString()
                 is BinaryMessage -> String(message.payload.array())
                 else -> {
-                    LOG.debug("Unsupported message type")
+                    LOG.debug("Unsupported message type: $message")
                     return
                 }
             }
@@ -53,8 +53,9 @@ open class MessageHandler : TextWebSocketHandler() {
                     session.sendMessage(TextMessage(mapper.writeValueAsString(LoggedInMessage(characters))))
                     LOG.info("User logged in: {}", session.id)
                 } else {
-                    // LOG.debug("Wrong login/pass");
-                    // session.sendMessage(new FromServerMessage(ERROR, "Wrong login/pass").toText(mapper));
+                    LOG.debug("Wrong credentials")
+                    session.sendMessage(TextMessage(mapper.writeValueAsString(ErrorMessage("Wrong credentials"))))
+                    session.close()
                 }
 
             } else if (request is JoinMessage) {

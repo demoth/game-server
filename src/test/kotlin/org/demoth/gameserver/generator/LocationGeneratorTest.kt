@@ -146,11 +146,13 @@ class LocationGeneratorTest {
         assert(loc4x1.actors.size == 5, { "should not contain anything else" })
     }
 
-
+    /*
+     * Test to find any exceptions or infinite loops
+     */
     @Test
     fun `test 10000x`() {
         (0..10000).forEach {
-            val loc = generateLocation(10, 10, JavaRandom())
+            generateLocation(10, 10, JavaRandom())
         }
     }
 }
