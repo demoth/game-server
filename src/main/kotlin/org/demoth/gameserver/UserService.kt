@@ -18,8 +18,8 @@ open class UserService {
     fun register(user: User, id: String): List<String> {
         currentUsers[id] = user
         val chars = ArrayList<String>()
-        chars.add("Totemy [Templar lvl 12]")
-        chars.add("ArkWi4ka [Witch lvl 2]")
+        chars.add("test character 1")
+        chars.add("test character 2")
         return chars
     }
 }

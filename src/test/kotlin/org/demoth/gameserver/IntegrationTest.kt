@@ -1,18 +1,13 @@
 package org.demoth.gameserver
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.demoth.gameserver.api.messaging.ErrorMessage
-import org.demoth.gameserver.api.messaging.LoginMessage
-import org.demoth.gameserver.api.messaging.decode
+import org.demoth.gameserver.api.messaging.*
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketHandler
-
 
 @RunWith(SpringJUnit4ClassRunner::class)
 @ContextConfiguration(classes = [WebSocketConfig::class])
@@ -21,15 +16,34 @@ class IntegrationTest {
     @Autowired
     lateinit var handler: WebSocketHandler
 
-    private val mapper = ObjectMapper()
-
     @Test
     fun `login with wrong credentials`() {
         val session = TestWebsocketSession()
         Assert.assertNotNull(handler)
-        handler.handleMessage(session, TextMessage(mapper.writeValueAsString(LoginMessage("1", "1"))))
+        testMessages(session, LoginMessage("1", "1"))
         Assert.assertFalse(session.isOpen)
-        Assert.assertEquals(decode(session.sentMessages[0]!!, mapper), ErrorMessage("Wrong credentials"))
+        Assert.assertEquals(session.getMessages().first(), ErrorMessage("Wrong credentials"))
+    }
 
+    @Test
+    fun `test login join move`() {
+        val session = TestWebsocketSession()
+        Assert.assertNotNull(handler)
+        testMessages(session,
+                LoginMessage("test", "test"),
+                JoinMessage("test character 1"),
+                MoveAction("e")
+        )
+        Thread.sleep(3000)
+        println("messages: ${session.getMessages().size}")
+        Assert.assertTrue(session.getMessages().any { it is LoggedInMessage })
+        Assert.assertTrue(session.getMessages().any { it is JoinedMessage })
+        Assert.assertTrue(session.getMessages().any { it is UpdateMessage && it.updates.any { it is Movement } })
+    }
+
+    private fun testMessages(session: TestWebsocketSession, vararg msg: Message) {
+        msg.forEach {
+            handler.handleMessage(session, it.encode())
+        }
     }
 }

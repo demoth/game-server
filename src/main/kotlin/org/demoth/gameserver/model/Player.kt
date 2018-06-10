@@ -31,7 +31,6 @@ class Player(x: Int = 0, y: Int = 0) : Actor(ActorType.CREATURE, name = "Player"
     var session: WebSocketSession? = null
 
     val update: Update
-        @Throws(InterruptedException::class)
         get() = results.take()
 
     fun enqueueRequest(command: Message) {

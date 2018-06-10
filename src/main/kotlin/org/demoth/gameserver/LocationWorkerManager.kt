@@ -26,7 +26,7 @@ open class LocationWorkerManager {
                     return@Thread
                 }
                 val updates = location.updateLocation()
-                val allPlayersReady = location.players.stream().noneMatch({ it.idle() })
+                val allPlayersReady = location.players.none({ it.idle() })
                 // todo: make configurable
                 val sleep = if (allPlayersReady) 100 else 2000
                 try {

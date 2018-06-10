@@ -19,7 +19,7 @@ open class ActorService {
         character.location = generateLocation(10, 10, JavaRandom())
         val cell = character.location?.actors?.find { it.type == ActorType.REGION }?.actors?.find { it.type == ActorType.CELL }
         if (cell != null) {
-            character.location?.move(cell.x, cell.y)
+            character.move(cell.x, cell.y)
         }
 //        character.location = createSampleLocation(10, 10)
     }

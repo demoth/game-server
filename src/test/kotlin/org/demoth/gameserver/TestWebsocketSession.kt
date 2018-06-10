@@ -1,5 +1,7 @@
 package org.demoth.gameserver
 
+import org.demoth.gameserver.api.messaging.Message
+import org.demoth.gameserver.api.messaging.decode
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.web.socket.CloseStatus
@@ -17,13 +19,17 @@ class TestWebsocketSession : WebSocketSession {
     private val id = UUID.randomUUID().toString()
     private var closed = false
 
-    val sentMessages = mutableListOf<WebSocketMessage<*>?>()
+    private val sentMessages = mutableListOf<WebSocketMessage<*>>()
 
     companion object {
         val LOG = LoggerFactory.getLogger(TextWebSocketHandler::class.java)
     }
 
-    override fun sendMessage(message: WebSocketMessage<*>?) {
+    fun getMessages(): List<Message> {
+        return sentMessages.map { decode(it) }
+    }
+
+    override fun sendMessage(message: WebSocketMessage<*>) {
         LOG.debug("sendMessage: $message")
         sentMessages.add(message)
     }
