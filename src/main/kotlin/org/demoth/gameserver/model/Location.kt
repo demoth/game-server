@@ -2,6 +2,7 @@ package org.demoth.gameserver.model
 
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.messaging.*
+import org.slf4j.LoggerFactory
 import java.lang.Integer.max
 import java.lang.Integer.min
 import java.util.*
@@ -12,10 +13,12 @@ import kotlin.collections.HashSet
 
 typealias Board = Array<Array<Actor?>?>
 
-/*
-    Location.actors are basically cells, that contain other actors
- */
 class Location(var board: Board) : Actor(ActorType.LOCATION) {
+
+    companion object {
+        val LOG = LoggerFactory.getLogger(Location::class.java)!!
+    }
+
     // players are kept to manage connection
     val players = ConcurrentLinkedQueue<Player>()
 
@@ -25,8 +28,7 @@ class Location(var board: Board) : Actor(ActorType.LOCATION) {
         board.forEachIndexed { y, row ->
             row?.forEachIndexed { x, cell ->
                 cell?.actors?.forEach {
-                    it.move(x, y)
-                    it.clearUpdates()
+                    it.place(x, y)
                 }
                 cell?.let { actors.add(it) }
             }
@@ -112,8 +114,8 @@ class Location(var board: Board) : Actor(ActorType.LOCATION) {
                     performed = true
                 }
 
-                println("executing: $command")
-                println("player pos before: ${player.x}:${player.y}")
+                LOG.debug("executing: $command")
+                LOG.debug("player pos before: ${player.x}:${player.y}")
                 if (command is MoveAction) {
                     when (command.direction) {
                         "n" -> move(player, 0, -1)
@@ -122,7 +124,7 @@ class Location(var board: Board) : Actor(ActorType.LOCATION) {
                         "w" -> move(player, -1, 0)
                     }
                 }
-                println("player pos after: ${player.x}:${player.y}")
+                LOG.debug("player pos after: ${player.x}:${player.y}")
             }
         }
     }
@@ -137,7 +139,7 @@ class Location(var board: Board) : Actor(ActorType.LOCATION) {
             return
         board[actor.y]!![actor.x]!!.actors.remove(actor)
         actor.move(newX, newY)
-        checkActorPosition(actor)
+        checkActorPosition(actor.x, actor.y)
         board[actor.y]!![actor.x]!!.actors.add(actor)
     }
 
@@ -145,21 +147,21 @@ class Location(var board: Board) : Actor(ActorType.LOCATION) {
         if (actor is Player) {
             players.add(actor)
         }
-        checkActorPosition(actor)
+        checkActorPosition(actor.x, actor.y)
         board[actor.y]!![actor.x]!!.actors.add(actor)
     }
 
-    private fun checkActorPosition(actor: Actor) {
-        if (actor.y !in 0..(board.size - 1) || actor.x !in 0..(board[0]!!.size - 1))
+    private fun checkActorPosition(x: Int, y: Int) {
+        if (y !in 0..(board.size - 1) || x !in 0..(board[0]!!.size - 1))
             throw IllegalStateException("Actor added outside board! Actor position : " +
-                    "${actor.x},${actor.y}, board size: ${board.firstOrNull()?.size},${board.size}")
+                    "$x,$y, board size: ${board.firstOrNull()?.size},${board.size}")
     }
 
     fun remove(actor: Actor) {
         if (actor is Player) {
             players.remove(actor)
         }
-        checkActorPosition(actor)
+        checkActorPosition(actor.x, actor.y)
         board[actor.y]!![actor.x]!!.actors.remove(actor)
     }
 

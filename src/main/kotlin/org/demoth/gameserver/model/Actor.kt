@@ -22,9 +22,8 @@ open class Actor(
         x: Int = 0,
         y: Int = 0,
         val id: String = IdGenerator.newUUID(),
-        var onUpdate: (() -> Unit)? = null) {
-
-    private val longProps = EnumMap<PropertyLong, Long>(PropertyLong::class.java)
+        var onUpdate: (() -> Unit)? = null,
+        val properties: EnumMap<PropertyLong, Long> = EnumMap<PropertyLong, Long>(PropertyLong::class.java)) {
 
     // updates accumulated during current frame
     private val updates = ArrayList<Update>()
@@ -37,6 +36,19 @@ open class Actor(
     var y: Int = y
         private set
 
+    /**
+     * Place actor to specific position. Network updates will not be generated.
+     * Used to initially place objects.
+     */
+    fun place(x: Int, y: Int) {
+        this.x = x
+        this.y = y
+    }
+
+    /**
+     * Move actor to specific position. Network updates will be generated.
+     * Used to move objects during game.
+     */
     fun move(x: Int, y: Int) {
         this.x = x
         this.y = y
@@ -75,12 +87,12 @@ open class Actor(
 
 
     fun set(key: PropertyLong, value: Long?) {
-        val oldValue = longProps.put(key, value)
+        val oldValue = properties.put(key, value)
         updates.add(StateChangeData(id, key.name, value.toString()))
     }
 
     fun get(key: PropertyLong): Long? {
-        return longProps[key]
+        return properties[key]
     }
 
     override fun toString(): String {

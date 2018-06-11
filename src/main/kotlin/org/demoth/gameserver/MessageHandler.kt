@@ -62,11 +62,11 @@ open class MessageHandler : TextWebSocketHandler() {
                 val character = actorService.loadCharacter(request.character_id)
                 character.session = session
                 players[session.id] = character
-                LOG.info("Character joined {}", character)
                 if (character.location == null) {
                     actorService.setLocation(character)
                 }
                 character.location!!.add(character)
+                LOG.info("Character joined {}", character)
                 LOG.info("Location loaded {}", character.location)
                 session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.id))))
                 locationWorkerManager.runLocation(character.location!!)

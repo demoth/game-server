@@ -261,27 +261,19 @@ private fun getUpDownLeftRightCells(x: Int, y: Int): List<Actor> {
 }
 
 private fun up(c: Actor): Actor {
-    val cell = Actor(CELL, x = c.x, y = c.y - 1)
-    cell.set(DIRECTION, 1)
-    return cell
+    return Actor(CELL, x = c.x, y = c.y - 1, properties = EnumMap(mapOf(DIRECTION to 1L)))
 }
 
 private fun left(c: Actor): Actor {
-    val cell = Actor(CELL, x = c.x - 1, y = c.y)
-    cell.set(DIRECTION, 2)
-    return cell
+    return Actor(CELL, x = c.x - 1, y = c.y, properties = EnumMap(mapOf(DIRECTION to 2L)))
 }
 
 private fun down(c: Actor): Actor {
-    val cell = Actor(CELL, x = c.x, y = c.y + 1)
-    cell.set(DIRECTION, 3)
-    return cell
+    return Actor(CELL, x = c.x, y = c.y + 1, properties = EnumMap(mapOf(DIRECTION to 3L)))
 }
 
 private fun right(c: Actor): Actor {
-    val cell = Actor(CELL, x = c.x + 1, y = c.y)
-    cell.set(DIRECTION, 4)
-    return cell
+    return Actor(CELL, x = c.x + 1, y = c.y, properties = EnumMap(mapOf(DIRECTION to 4L)))
 }
 
 private fun stageHasEmptyCells(stage: Location): Boolean {

@@ -4,10 +4,15 @@ import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.generator.JavaRandom
 import org.demoth.gameserver.generator.generateLocation
 import org.demoth.gameserver.model.Player
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
 open class ActorService {
+    companion object {
+        val LOG = LoggerFactory.getLogger(ActorService::class.java)
+    }
+
     fun loadCharacter(charId: String): Player {
         val player = Player()
         player.name = charId
@@ -16,11 +21,11 @@ open class ActorService {
     }
 
     fun setLocation(character: Player) {
-        character.location = generateLocation(10, 10, JavaRandom())
-        val cell = character.location?.actors?.find { it.type == ActorType.REGION }?.actors?.find { it.type == ActorType.CELL }
+        character.location = generateLocation(20, 20, JavaRandom())
+        val cell = character.location!!.actors.find { it.type == ActorType.REGION }?.actors?.find { it.type == ActorType.CELL }
         if (cell != null) {
-            character.move(cell.x, cell.y)
+            LOG.debug("Player start position: ${cell.x}, ${cell.y}")
+            character.place(cell.x, cell.y)
         }
-//        character.location = createSampleLocation(10, 10)
     }
 }
