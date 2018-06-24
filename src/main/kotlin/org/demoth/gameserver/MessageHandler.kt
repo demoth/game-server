@@ -6,10 +6,10 @@ import org.demoth.gameserver.model.Player
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.socket.*
-import org.springframework.web.socket.handler.TextWebSocketHandler
+import org.springframework.web.socket.handler.AbstractWebSocketHandler
 import java.util.concurrent.ConcurrentHashMap
 
-open class MessageHandler : TextWebSocketHandler() {
+open class MessageHandler : AbstractWebSocketHandler() {
     @Autowired
     lateinit var userService: UserService
     @Autowired
@@ -23,9 +23,8 @@ open class MessageHandler : TextWebSocketHandler() {
     private var players = ConcurrentHashMap<String, Player>()
 
     override fun afterConnectionClosed(session: WebSocketSession?, status: CloseStatus?) {
-        if (session == null || status == null)
+        if (session == null)
             return
-        super.afterConnectionClosed(session, status)
         players[session.id]?.let { player ->
             player.location?.remove(player)
             players.remove(session.id)
@@ -35,7 +34,7 @@ open class MessageHandler : TextWebSocketHandler() {
     }
 
     override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
-        LOG.debug("Received: {} from {}", message::class, session.id)
+        LOG.debug("Received: {} from {}", message::class.simpleName, session.id)
         try {
             val body = when (message) {
                 is TextMessage -> message.payload.toString()
@@ -65,9 +64,7 @@ open class MessageHandler : TextWebSocketHandler() {
                 if (character.location == null) {
                     actorService.setLocation(character)
                 }
-                character.location!!.add(character)
                 LOG.info("Character joined {}", character)
-                LOG.info("Location loaded {}", character.location)
                 session.sendMessage(TextMessage(mapper.writeValueAsString(JoinedMessage(character.id))))
                 locationWorkerManager.runLocation(character.location!!)
                 updateSenderManager.startSendingUpdates(character)

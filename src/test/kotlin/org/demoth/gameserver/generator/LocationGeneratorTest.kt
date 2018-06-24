@@ -1,6 +1,6 @@
 package org.demoth.gameserver.generator
 
-import org.demoth.gameserver.api.ActorType.*
+import org.demoth.gameserver.api.ActorType.FLOOR
 import org.junit.Test
 
 class LocationGeneratorTest {
@@ -52,10 +52,8 @@ class LocationGeneratorTest {
     @Test
     fun `test 1x1 location`() {
         val loc1x1 = generateLocation(1, 1, JavaRandom(), 1, 1, 1, 1, 1)
-        assert(loc1x1.actors.size == 1)
-        assert(loc1x1.actors.all { it.type == REGION })
-        assert(loc1x1.board[0]!![0]!!.type == CELL, { "board should contain CELL type actors" })
-        assert(loc1x1.actors.first().actors.first() === loc1x1.board.first()!!.first(), { "room should contain same cell as on the board" })
+        assert(loc1x1.regions.size == 1)
+        assert(loc1x1.regions.first().cells.first() === loc1x1.board.first()!!.first(), { "room should contain same cell as on the board" })
     }
 
     /*
@@ -74,9 +72,8 @@ class LocationGeneratorTest {
                 0, // room 2 y
                 0) // room to start with
         val loc2x2 = generateLocation(2, 1, r, 2, 1, 1, 1, 1)
-        assert(loc2x2.actors.count { it.type == REGION } == 2, { "should contain 2 rooms" })
-        assert(loc2x2.actors.count { it.type == GATE } == 1, { "should contain 1 gate" })
-        assert(loc2x2.actors.size == 3, { "should not contain anything else" })
+        assert(loc2x2.regions.size == 2, { "should contain 2 rooms" })
+        assert(loc2x2.gates.size == 1, { "should contain 1 gate" })
     }
 
     /*
@@ -96,9 +93,8 @@ class LocationGeneratorTest {
                 0, // room to start with
                 0) // adjacent region index
         val loc2x2 = generateLocation(3, 1, r, 2, 1, 1, 1, 1)
-        assert(loc2x2.actors.count { it.type == REGION } == 2, { "should contain 2 rooms" })
-        assert(loc2x2.actors.count { it.type == GATE } == 1, { "should contain 1 gate" })
-        assert(loc2x2.actors.size == 3, { "should not contain anything else" })
+        assert(loc2x2.regions.size == 2, { "should contain 2 rooms" })
+        assert(loc2x2.gates.size == 1, { "should contain 1 gate" })
     }
 
     @Test
@@ -117,12 +113,12 @@ class LocationGeneratorTest {
                 0, // cell to start mazing
                 0f) // changing direction chance
         val loc3x1 = generateLocation(3, 1, r, 2, 1, 1, 1, 1)
-        assert(loc3x1.actors.count { it.type == REGION } == 3, { "should contain 2 rooms and 1 maze" })
-        assert(loc3x1.actors.count { it.type == GATE } == 2, { "should contain 2 gates" })
-        assert(loc3x1.actors.size == 5, { "should not contain anything else" })
+        assert(loc3x1.regions.size == 3, { "should contain 2 rooms and 1 maze" })
+        assert(loc3x1.gates.size == 2, { "should contain 2 gates" })
         // check that there are floor tiles
-        (0..2).forEach {
-            assert(loc3x1.board[0]!![it]!!.actors.any { it.type == FLOOR }, { "FLOOR tile not generated at 0:$it" })
+        (0..2).forEachIndexed { x, it ->
+            assert(loc3x1.board[0]!![it]!!.actors.all { it.type == FLOOR }, { "FLOOR tile not generated at 0:$it" })
+            assert(loc3x1.board[0]!![it]!!.actors.all { it.cell.x == x }, { "FLOOR tile cell is not set:$it" })
         }
     }
 
@@ -142,13 +138,12 @@ class LocationGeneratorTest {
                 0, // cell to start mazing
                 0f) // changing direction chance
         val loc4x1 = generateLocation(4, 1, r, 2, 1, 1, 1, 1)
-        assert(loc4x1.actors.count { it.type == REGION } == 3, { "should contain 2 rooms and 1 maze" })
-        assert(loc4x1.actors.count { it.type == GATE } == 2, { "should contain 2 gates" })
-        assert(loc4x1.actors.size == 5, { "should not contain anything else" })
+        assert(loc4x1.regions.size == 3, { "should contain 2 rooms and 1 maze" })
+        assert(loc4x1.gates.size == 2, { "should contain 2 gates" })
         // also check that objects in cells have proper coordinates
         val row = loc4x1.board[0]!!
         row.forEachIndexed { x, cell ->
-            cell!!.actors.filter { it.type == FLOOR }.forEach { assert(it.x == x, { "Cell coordinates are wrong, expected:actual ($x, ${it.x})" }) }
+            assert(cell!!.x == x, { "Cell coordinates are wrong, expected:actual ($x, ${cell.x})" })
         }
 
     }

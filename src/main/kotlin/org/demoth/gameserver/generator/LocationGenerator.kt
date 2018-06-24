@@ -1,10 +1,7 @@
 package org.demoth.gameserver.generator
 
-import org.demoth.gameserver.api.ActorType.*
-import org.demoth.gameserver.api.PropertyLong.DIRECTION
-import org.demoth.gameserver.model.Actor
-import org.demoth.gameserver.model.Board
-import org.demoth.gameserver.model.Location
+import org.demoth.gameserver.api.ActorType.FLOOR
+import org.demoth.gameserver.model.*
 import java.lang.Integer.min
 import java.util.*
 
@@ -43,30 +40,32 @@ private fun placeRoom(location: Location, roomSizeX: Int, roomSizeZ: Int, roomX:
         }
     }
     val region = formRectangleRoom(location.board, roomSizeX, roomSizeZ, roomX, roomY)
-    location.actors.add(region)
+    location.regions.add(region)
 }
 
-private fun formRectangleRoom(board: Board, width: Int, height: Int, roomX: Int, roomY: Int): Actor {
-    val region = Actor(REGION, "room")
+private fun formRectangleRoom(board: Board, width: Int, height: Int, roomX: Int, roomY: Int): Region {
+    val room = Region()
     (0 until width).forEach { x ->
         (0 until height).forEach { y ->
-            val cell = Actor(CELL, "", roomX + x, roomY + y)
-            cell.actors.add(region)
-            cell.actors.add(Actor(FLOOR, x = roomX + x, y = roomY + y))
-            region.actors.add(cell)
-            board[roomY + y]!![roomX + x] = cell
+            val cellX = roomX + x
+            val cellY = roomY + y
+            val cell = Cell(cellX, cellY, mutableListOf(Actor(FLOOR)))
+            cell.region = room
+            room.cells.add(cell)
+            cell.actors.forEach { it.cell = cell }
+            board[cellY]!![cellX] = cell
         }
     }
-    return region
+    return room
 }
 
 private fun connectRegionsByTwoSets(stage: Location, r: RandomI, mazeStraightness: Float) {
-    if (stage.actors.isEmpty())
+    if (stage.regions.isEmpty())
         return
     // carve corridors to regions:
-    val notConnected = LinkedList(stage.actors)
-    val connected = LinkedList<Actor>()
-    val region = stage.actors.first()
+    val notConnected = LinkedList(stage.regions)
+    val connected = LinkedList<Region>()
+    val region = stage.regions.first()
     notConnected.remove(region)
     connected.add(region)
     while (!notConnected.isEmpty()) {
@@ -80,13 +79,12 @@ private fun connectRegionsByTwoSets(stage: Location, r: RandomI, mazeStraightnes
     */
 }
 
-private fun connectRegions(location: Location, r: RandomI, notConnected: MutableList<Actor>, connected: MutableList<Actor>, mazeStraightness: Float) {
+private fun connectRegions(location: Location, r: RandomI, notConnected: MutableList<Region>, connected: MutableList<Region>, mazeStraightness: Float) {
     if (!stageHasEmptyCells(location)) {
         // pick random unconnected region, pick a border cell from it and make a door outwards
         val region = notConnected[r.nextInt(notConnected.size)]
-        // ?: return is very unlikely
         val junction = getAnyJunctionToDifferentRegion(region, r, connected, location.board) ?: return
-        location.actors.add(junction)
+        location.gates.add(junction)
         notConnected.remove(region)
         connected.add(region)
         return
@@ -96,22 +94,23 @@ private fun connectRegions(location: Location, r: RandomI, notConnected: Mutable
     // sometimes we can connect two adjacent regions without any maze
     val junction = connectAdjacentRegions(startingRegion, notConnected, location.board, r)
     if (junction != null) {
-        location.actors.add(junction)
-        val connectedRegion = junction.actors[1].actors.find { it.type == REGION }!!
+        location.gates.add(junction)
+        val connectedRegion = junction.to.region
         notConnected.remove(connectedRegion)
         connected.add(connectedRegion)
         return
     }
     // we carve a maze starting from any connected region
-    val maze = Actor(REGION, "maze")
-    var destinations: List<Actor> = ArrayList()
+    val maze = Region()
+    var destinations: List<Gate> = ArrayList()
     val startingGate = getStartPosition(startingRegion, location.board, r) ?: return
-    var currentCell: Actor? = startingGate.actors[1] // fixme
+    var currentCell: Cell? = startingGate.to
     while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
-        //currentCell.setType(CellType.MAZE)
-        maze.actors.add(currentCell)
-        currentCell.actors.add(maze)
-        currentCell.actors.add(Actor(FLOOR, "floor${currentCell.x}:${currentCell.y}", currentCell.x, currentCell.y))
+        maze.cells.add(currentCell)
+        currentCell.region = maze
+        val floor = Actor(FLOOR, "floor${currentCell.x}:${currentCell.y}", currentCell.x, currentCell.y)
+        floor.cell = currentCell
+        currentCell.actors.add(floor)
         location.board[currentCell.y]!![currentCell.x] = currentCell
         destinations = findAdjacentRegions(currentCell, location.board, notConnected)
         if (destinations.isEmpty()) {
@@ -124,31 +123,30 @@ private fun connectRegions(location: Location, r: RandomI, notConnected: Mutable
     // currentCell will never be null here, but check is required
     if (destinations.isNotEmpty() && currentCell != null) {
         // todo: make several connections
-        val endingGate = destinations[0]
-        location.actors.add(startingGate)
-        location.actors.add(endingGate)
-        notConnected.remove(endingGate.actors[1].actors.find { it.type == REGION })
-        connected.add(endingGate.actors[1].actors.find { it.type == REGION }!!)
+        val endingGate = destinations.first()
+        location.gates.add(startingGate)
+        location.gates.add(endingGate)
+        notConnected.remove(endingGate.to.region)
+        connected.add(endingGate.to.region)
         connected.add(maze)
-        location.actors.add(maze)
+        location.regions.add(maze)
     } else {
         // maze was build but led nowhere
         // erase it from stageGrid
-        for (c in maze.actors) {
+        for (c in maze.cells) {
             location.board[c.y]!![c.x] = null
         }
     }
 }
 
-fun connectAdjacentRegions(startingRegion: Actor, notConnected: List<Actor>, board: Board, r: RandomI): Actor? {
-    val adjacent = startingRegion.actors
-            .filter { it.type == CELL }
+fun connectAdjacentRegions(startingRegion: Region, notConnected: List<Region>, board: Board, r: RandomI): Gate? {
+    val adjacent = startingRegion.cells
             .map { fromCell ->
                 getUpDownLeftRightCells(fromCell.x, fromCell.y)
                         .filter { insideStage(it, board) }
                         .filter { board[it.y]?.get(it.x) != null }
                         .map { board[it.y]!![it.x]!! }
-                        .map { it to it.actors.find { it.type == REGION } }
+                        .map { it to it.region }
                         .filter { notConnected.contains(it.second) }
                         .map { fromCell to it.first }
             }.flatten().toMap()
@@ -156,14 +154,11 @@ fun connectAdjacentRegions(startingRegion: Actor, notConnected: List<Actor>, boa
         return null
     else {
         val adjacentRegion = adjacent.entries.toList()[r.nextInt(adjacent.size)]
-        val gate = Actor(GATE)
-        gate.actors.add(adjacentRegion.key)
-        gate.actors.add(adjacentRegion.value)
-        return gate
+        return Gate(adjacentRegion.key, adjacentRegion.value)
     }
 }
 
-private fun getNextCell(currentCell: Actor, board: Board, mazeStraightness: Float, r: RandomI): Actor? {
+private fun getNextCell(currentCell: Cell, board: Board, mazeStraightness: Float, r: RandomI): Cell? {
     val adjacentAvailableCells = getAdjacentAvailableCells(currentCell.x, currentCell.y, board)
     if (adjacentAvailableCells.isEmpty()) {
         return null
@@ -172,7 +167,7 @@ private fun getNextCell(currentCell: Actor, board: Board, mazeStraightness: Floa
     }
 
     val oldDirCell = adjacentAvailableCells
-            .filter { cell -> cell.get(DIRECTION) === currentCell.get(DIRECTION) }
+            .filter { cell -> cell.direction === currentCell.direction }
 
     val changeDirection = r.nextFloat() > mazeStraightness
     if (!changeDirection && !oldDirCell.isEmpty()) {
@@ -184,32 +179,25 @@ private fun getNextCell(currentCell: Actor, board: Board, mazeStraightness: Floa
     return adjacentAvailableCells[r.nextInt(adjacentAvailableCells.size)]
 }
 
-private fun findAdjacentRegions(newCell: Actor, board: Board, notConnected: List<Actor>): List<Actor> {
+private fun findAdjacentRegions(newCell: Cell, board: Board, notConnected: List<Region>): List<Gate> {
     return getUpDownLeftRightCells(newCell.x, newCell.y)
             .filter { cell -> insideStage(cell, board) }
             .filter { cell -> board[cell.y]!![cell.x] != null } // there is a cell at the point (x,y)
-            .filter { cell -> notConnected.contains(board[cell.y]!![cell.x]?.actors?.find { it.type == REGION }) } // connect only unconnected regions
+            .filter { cell -> notConnected.contains(board[cell.y]!![cell.x]?.region) } // connect only unconnected regions
             .map { cell ->
-                Actor(GATE).apply {
-                    actors.add(newCell)
-                    actors.add(board[cell.y]!![cell.x]!!)
-                }
+                Gate(newCell, board[cell.y]!![cell.x]!!)
             }
 }
 
-private fun getStartPosition(from: Actor, board: Board, r: RandomI): Actor? {
+private fun getStartPosition(from: Region, board: Board, r: RandomI): Gate? {
     val startingCell = findValidStartingCell(from, board, r) ?: return null
     val adjacentCells = getAdjacentAvailableCells(startingCell.x, startingCell.y, board)
     val targetCell = adjacentCells[r.nextInt(adjacentCells.size)]
-    val gate = Actor(GATE)
-    gate.actors.add(startingCell)
-    gate.actors.add(targetCell)
-    return gate
+    return Gate(startingCell, targetCell)
 }
 
-private fun findValidStartingCell(region: Actor, board: Board, r: RandomI): Actor? {
-
-    val available = region.actors.filter { it.type == CELL }.filter { cell ->
+private fun findValidStartingCell(region: Region, board: Board, r: RandomI): Cell? {
+    val available = region.cells.filter { cell ->
         !getAdjacentAvailableCells(cell.x, cell.y, board).isEmpty()
     }.toList()
     if (available.isNotEmpty())
@@ -217,43 +205,40 @@ private fun findValidStartingCell(region: Actor, board: Board, r: RandomI): Acto
     return null
 }
 
-private fun getAdjacentAvailableCells(x: Int, z: Int, board: Board): MutableList<Actor> {
+private fun getAdjacentAvailableCells(x: Int, z: Int, board: Board): MutableList<Cell> {
     return getUpDownLeftRightCells(x, z)
             .filter { cell -> available(cell, board) }
             .toMutableList()
 }
 
-private fun available(cell: Actor, board: Board): Boolean {
+private fun available(cell: Cell, board: Board): Boolean {
     return insideStage(cell, board) && board[cell.y]!![cell.x] == null
 }
 
 /**
  * pick any junction that will lead to another (connected) region
  */
-private fun getAnyJunctionToDifferentRegion(region: Actor, r: RandomI, connected: List<Actor>, board: Board): Actor? {
-    val shuffled = region.actors.filter { it.type == CELL }.toMutableList()
+private fun getAnyJunctionToDifferentRegion(region: Region, r: RandomI, connected: List<Region>, board: Board): Gate? {
+    val shuffled = region.cells.toMutableList()
     r.shuffle(shuffled)
     for (cell in shuffled) {
         for (adjacent in getUpDownLeftRightCells(cell.x, cell.y).filter({ c -> insideStage(c, board) })) {
             val targetCell = board[adjacent.y]!![adjacent.x]
-            if (targetCell != null && connected.contains(targetCell.actors.find { it.type == REGION })) {
-                val gate = Actor(GATE)
-                gate.actors.add(cell)
-                gate.actors.add(targetCell)
-                return gate
+            if (targetCell != null && connected.contains(targetCell.region)) {
+                return Gate(cell, targetCell)
             }
         }
     }
     return null
 }
 
-private fun insideStage(cell: Actor, board: Board): Boolean {
+private fun insideStage(cell: Cell, board: Board): Boolean {
     return cell.y >= 0 && cell.y < board.size && cell.x >= 0 && cell.x < board[0]!!.size
 }
 
-private fun getUpDownLeftRightCells(x: Int, y: Int): List<Actor> {
-    val result = ArrayList<Actor>()
-    val c = Actor(CELL, x = x, y = y)
+private fun getUpDownLeftRightCells(x: Int, y: Int): List<Cell> {
+    val result = ArrayList<Cell>()
+    val c = Cell(x, y)
     result.add(up(c))
     result.add(down(c))
     result.add(left(c))
@@ -261,20 +246,20 @@ private fun getUpDownLeftRightCells(x: Int, y: Int): List<Actor> {
     return result
 }
 
-private fun up(c: Actor): Actor {
-    return Actor(CELL, x = c.x, y = c.y - 1, properties = EnumMap(mapOf(DIRECTION to 1L)))
+private fun up(c: Cell): Cell {
+    return Cell(c.x, c.y - 1, direction = Direction.UP)
 }
 
-private fun left(c: Actor): Actor {
-    return Actor(CELL, x = c.x - 1, y = c.y, properties = EnumMap(mapOf(DIRECTION to 2L)))
+private fun left(c: Cell): Cell {
+    return Cell(c.x - 1, c.y, direction = Direction.LEFT)
 }
 
-private fun down(c: Actor): Actor {
-    return Actor(CELL, x = c.x, y = c.y + 1, properties = EnumMap(mapOf(DIRECTION to 3L)))
+private fun down(c: Cell): Cell {
+    return Cell(c.x, c.y + 1, direction = Direction.DOWN)
 }
 
-private fun right(c: Actor): Actor {
-    return Actor(CELL, x = c.x + 1, y = c.y, properties = EnumMap(mapOf(DIRECTION to 4L)))
+private fun right(c: Cell): Cell {
+    return Cell(c.x + 1, c.y, direction = Direction.RIGHT)
 }
 
 private fun stageHasEmptyCells(stage: Location): Boolean {

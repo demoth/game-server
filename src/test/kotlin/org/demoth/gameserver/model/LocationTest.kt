@@ -3,8 +3,17 @@ package org.demoth.gameserver.model
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
 import org.demoth.gameserver.api.messaging.*
-import org.junit.Assert.fail
 import org.junit.Test
+
+private fun createSampleLocation(width: Int = 1, height: Int = 1): Location {
+    return Location(Board(height, { y ->
+        val row = mutableListOf<Cell>()
+        (0 until width).forEach { x ->
+            row.add(Cell(x, y, mutableListOf(Actor(ActorType.FLOOR))))
+        }
+        row.toTypedArray()
+    }))
+}
 
 class LocationTest {
 
@@ -28,19 +37,20 @@ class LocationTest {
     @Test
     fun `test add actor to board`() {
         val l = createSampleLocation()
-        l.add(Actor(ActorType.CREATURE))
-        assert(l.actors.size == 1)
-        assert(l.board[0]!![0]!!.actors.size == 2)
+        val cat = Actor(ActorType.CREATURE)
+        l.add(cat, 0, 0)
+        assert(l.actors.contains(cat), { "cat is not added" })
+        assert(l.board[0]!![0]!!.actors.size == 2, { "cell should contain 2 actors: cat & floor" })
     }
 
     @Test
     fun `test remove actor from board`() {
         val l = createSampleLocation()
         val actor = Actor(ActorType.CREATURE)
-        l.add(actor)
+        l.add(actor, 0, 0)
 
         l.remove(actor)
-        assert(l.actors[0].type == ActorType.CELL)
+        assert(l.actors.isEmpty())
         assert(l.board[0]!![0]!!.actors.size == 1)
         assert(l.board[0]!![0]!!.actors.first().type == ActorType.FLOOR)
     }
@@ -48,7 +58,7 @@ class LocationTest {
     @Test
     fun `test update with emtpy actor`() {
         val l = createSampleLocation()
-        l.add(Actor(ActorType.CREATURE))
+        l.add(Actor(ActorType.CREATURE), 0, 0)
         val updates = l.updateLocation()
         assert(updates.isEmpty())
     }
@@ -57,7 +67,7 @@ class LocationTest {
     fun `test move actor`() {
         val l = createSampleLocation(width = 2)
         val actor = Actor(ActorType.CREATURE)
-        l.add(actor)
+        l.add(actor, 0, 0)
         l.move(actor, 1, 0)
         val updates = l.updateLocation()
         // x is changed, y is not
@@ -76,7 +86,7 @@ class LocationTest {
         felix.onUpdate = {
             felix.set(HEALTH, 1)
         }
-        l.add(felix)
+        l.add(felix, 0, 0)
         val updates = l.updateLocation()
         assert(updates.size == 1)
         assert(updates[0] is StateChangeData)
@@ -94,7 +104,7 @@ class LocationTest {
                 onUpdate = {
                     felix.set(HEALTH, 2)
                 }))
-        l.add(felix)
+        l.add(felix, 0, 0)
         val updates = l.updateLocation()
         assert(updates.size == 1)
         assert(updates[0] is StateChangeData)
@@ -104,19 +114,20 @@ class LocationTest {
         assert(stateChangeData.new_value == "2")
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test
     fun `test add actor outside board`() {
         val l = createSampleLocation()
         val actor = Actor(ActorType.CREATURE)
-        actor.move(2, actor.y)
-        l.add(actor)
-        fail("Should have not added actor!")
+        l.add(actor, 0, 0)
+        l.move(actor, 1, 1)
+        assert(actor.cell.x == 0, { "Actor should not move" })
+        assert(actor.cell.y == 0, { "Actor should not move" })
     }
 
     @Test
     fun `test add player`() {
         val l = createSampleLocation()
-        l.add(Player())
+        l.add(Player(), 0, 0)
 
         assert(l.actors.size == 1)
         assert(l.players.size == 1)
@@ -127,18 +138,18 @@ class LocationTest {
     fun `test add player add actor`() {
         val l = createSampleLocation(width = 3)
         val player = Player()
-        l.add(player)
-        l.add(Actor(ActorType.CREATURE, x = 1, y = 0))
+        l.add(player, 0, 0)
+        l.add(Actor(ActorType.CREATURE), 1, 0)
         l.updateLocation()
-        assert(player.results.size == 4) // two tiles and two actors
+        assert(player.results.size == 4, { "Should have two tiles and two actors" })
     }
 
     @Test
     fun `test add player add actor second update`() {
         val l = createSampleLocation(width = 2)
         val player = Player()
-        l.add(player)
-        l.add(Actor(ActorType.CREATURE, x = 1, y = 0))
+        l.add(player, 0, 0)
+        l.add(Actor(ActorType.CREATURE), 1, 0)
         l.updateLocation()
         // emulate sending updates via network
         player.results.clear()
@@ -151,9 +162,9 @@ class LocationTest {
     fun `test add player add actor remove actor`() {
         val l = createSampleLocation(width = 2)
         val player = Player()
-        l.add(player)
-        val actor = Actor(ActorType.CREATURE, x = 1, y = 0)
-        l.add(actor)
+        l.add(player, 0, 0)
+        val actor = Actor(ActorType.CREATURE)
+        l.add(actor, 1, 0)
         l.updateLocation()
         // emulate sending updates via network
         player.results.clear()
@@ -168,9 +179,9 @@ class LocationTest {
     fun `test add player add actor move out of view`() {
         val l = createSampleLocation(width = 3)
         val player = Player()
-        l.add(player)
-        val actor = Actor(ActorType.CREATURE, x = 1, y = 0)
-        l.add(actor)
+        l.add(player, 0, 0)
+        val actor = Actor(ActorType.CREATURE)
+        l.add(actor, 1, 0)
         l.updateLocation()
         // emulate sending updates via network
         player.results.clear()
@@ -187,11 +198,11 @@ class LocationTest {
     fun `test player sees an actor come into view`() {
         val l = createSampleLocation(width = 3)
         val player = Player()
-        l.add(player)
-        val actor = Actor(ActorType.CREATURE, x = 2, y = 0)
-        l.add(actor)
+        l.add(player, 0, 0)
+        val actor = Actor(ActorType.CREATURE)
+        l.add(actor, 2, 0)
         l.updateLocation()
-        assert(player.results.size == 3) // two tiles and player
+        assert(player.results.size == 3, { "Should have two tiles and player" })
         // emulate sending updates via network
         player.results.clear()
 
@@ -199,34 +210,34 @@ class LocationTest {
         l.move(actor, -1, 0)
         l.updateLocation()
 
-        assert(player.results.contains(AppearData("CREATURE", actor.id, actor.x, actor.y)))
+        assert(player.results.contains(AppearData("CREATURE", actor.id, actor.cell.x, actor.cell.y)))
     }
 
     @Test
     fun `test player sees an actor appears`() {
         val l = createSampleLocation(width = 2)
         val player = Player()
-        l.add(player)
+        l.add(player, 0, 0)
         l.updateLocation()
         assert(player.results.size == 3) // two tiles and player
         // emulate sending updates via network
         player.results.clear()
 
-        val actor = Actor(ActorType.CREATURE, x = 1, y = 0)
-        l.add(actor)
+        val actor = Actor(ActorType.CREATURE)
+        l.add(actor, 1, 0)
         l.updateLocation()
 
-        assert(player.results.contains(AppearData("CREATURE", actor.id, actor.x, actor.y)))
+        assert(player.results.contains(AppearData("CREATURE", actor.id, actor.cell.x, actor.cell.y)))
     }
 
     @Test
     fun `test player command move`() {
         val l = createSampleLocation(width = 2)
         val player = Player()
-        l.add(player)
+        l.add(player, 0, 0)
         player.enqueueRequest(MoveAction("e"))
         l.updateLocation()
-        assert(player.x == 1)
+        assert(player.cell.x == 1)
         assert(!l.board[0]!![0]!!.actors.contains(player))
         assert(l.board[0]!![1]!!.actors.contains(player))
         assert(player.commands.isEmpty())
@@ -235,51 +246,49 @@ class LocationTest {
     @Test
     fun `test player command move change visible area`() {
         val l = createSampleLocation(width = 4)
-        val player = Player(1, 0)
-        l.add(player)
+        val player = Player()
+        l.add(player, 1, 0)
         l.updateLocation()
         player.results.clear()
 
         player.enqueueRequest(MoveAction("e"))
         l.updateLocation()
-        // (3,0) tile become visible
-        assert(player.results.any { it is AppearData && it.x == 3 && it.y == 0 })
-        // (0,0) tile become not visible
-        assert(player.results.any { it is DisappearData && it.id == l.board[0]!![0]!!.actors.first().id })
+        assert(player.results.any { it is AppearData && it.x == 3 && it.y == 0 }, { "(3,0) tile should become visible" })
+        assert(player.results.any { it is DisappearData && it.id == l.board[0]!![0]!!.actors.first().id }, { "(0,0) tile should become not visible" })
     }
 
     @Test
     fun `test player command move out of board borders`() {
         val l = createSampleLocation()
         val player = Player()
-        l.add(player)
+        l.add(player, 0, 0)
         player.enqueueRequest(MoveAction("e"))
         l.updateLocation()
         // we expect nothing happens
-        assert(player.x == 0)
+        assert(player.cell.x == 0)
         assert(l.board[0]!![0]!!.actors.contains(player))
         assert(player.commands.isEmpty())
     }
 
     @Test
     fun `test location with null cell`() {
-        val l = Location(arrayOf(arrayOf<Actor?>(null)))
+        val l = Location(arrayOf(arrayOf<Cell?>(null)))
         l.updateLocation()
     }
 
     @Test
     fun `test player in location with null cell`() {
-        val l = Location(arrayOf(arrayOf(Actor(ActorType.CELL), null)))
+        val l = Location(arrayOf(arrayOf(Cell(0, 0), null)))
         val player = Player()
-        l.add(player)
+        l.add(player, 0, 0)
         l.updateLocation()
     }
 
     @Test
     fun `test player moves location with null cell`() {
-        val l = Location(arrayOf(arrayOf(Actor(ActorType.CELL), null)))
+        val l = Location(arrayOf(arrayOf(Cell(0, 0), null)))
         val player = Player()
-        l.add(player)
+        l.add(player, 0, 0)
         l.updateLocation()
         player.enqueueRequest(MoveAction("e"))
         l.updateLocation()

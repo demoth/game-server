@@ -21,7 +21,7 @@ open class UpdateSenderManager {
 
     fun startSendingUpdates(player: Player) {
         val sender = Thread {
-            LOG.info("Started sending updates for player {} ", player.name)
+            LOG.info("Started sending updates for player '{}'", player.name)
             while (true) {
                 try {
                     val change = player.update
@@ -31,7 +31,7 @@ open class UpdateSenderManager {
                     LOG.error("Error while sending updates", e)
                     return@Thread
                 } catch (e: InterruptedException) {
-                    LOG.debug("Finished sending updates for {}", player.name)
+                    LOG.debug("Finished sending updates for player '{}'", player.name)
                     // todo persist player
                     return@Thread
                 }
@@ -44,7 +44,7 @@ open class UpdateSenderManager {
     }
 
     fun stopSendingUpdates(player: Player) {
-        val sender = players[player]
+        val sender = players.remove(player)
         sender?.interrupt()
     }
 

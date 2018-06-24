@@ -28,7 +28,7 @@ open class LocationWorkerManager {
                 val updates = location.updateLocation()
                 val allPlayersReady = location.players.none({ it.idle() })
                 // todo: make configurable
-                val sleep = if (allPlayersReady) 100 else 2000
+                val sleep = if (allPlayersReady) 100 else 100
                 try {
                     Thread.sleep(sleep.toLong())
                 } catch (e: InterruptedException) {
@@ -69,9 +69,9 @@ open class LocationWorkerManager {
                             return@filter true
                         }
                     }
-                    if (Math.abs(message.x - player.x) > player.sightRadius)
+                    if (Math.abs(message.x - player.cell.x) > player.sightRadius)
                         return@filter false
-                    if (Math.abs(message.y - player.y) > player.sightRadius)
+                    if (Math.abs(message.y - player.cell.y) > player.sightRadius)
                         return@filter false
 
                     // todo: think about caching

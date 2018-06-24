@@ -11,8 +11,5 @@ enum class ActorType {
     FLOOR,
     LOCATION,
     CREATURE,
-    EFFECT,
-    REGION,
-    GATE,
-    CELL,
+    EFFECT
 }

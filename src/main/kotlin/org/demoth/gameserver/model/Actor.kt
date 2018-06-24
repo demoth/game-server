@@ -29,30 +29,17 @@ open class Actor(
     private val updates = ArrayList<Update>()
 
     // common properties
-
-    var x: Int = x
-        private set
-
-    var y: Int = y
-        private set
-
-    /**
-     * Place actor to specific position. Network updates will not be generated.
-     * Used to initially place objects.
-     */
-    fun place(x: Int, y: Int) {
-        this.x = x
-        this.y = y
-    }
+    lateinit var cell: Cell
 
     /**
      * Move actor to specific position. Network updates will be generated.
      * Used to move objects during game.
      */
-    fun move(x: Int, y: Int) {
-        this.x = x
-        this.y = y
-        updates.add(Movement(id, x, y))
+    fun move(cell: Cell) {
+        this.cell.actors.remove(this)
+        this.cell = cell
+        this.cell.actors.add(this)
+        updates.add(Movement(id, cell.x, cell.y))
     }
 
     var sightRadius = 1
@@ -96,6 +83,6 @@ open class Actor(
     }
 
     override fun toString(): String {
-        return "Actor(pos='$x:$y', name='$name', type=$type)"
+        return "Actor(pos='$cell.x:$cell.y', name='$name', type=$type)"
     }
 }
