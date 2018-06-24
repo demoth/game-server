@@ -122,7 +122,14 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*TestSuite.*</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

@@ -2,10 +2,7 @@ package org.demoth.gameserver.generator
 
 import org.demoth.gameserver.api.ActorType.*
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class LocationGeneratorTest {
 
     private fun createRandom(vararg objects: Any): RandomI {
