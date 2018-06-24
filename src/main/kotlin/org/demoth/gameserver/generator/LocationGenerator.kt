@@ -111,6 +111,7 @@ private fun connectRegions(location: Location, r: RandomI, notConnected: Mutable
         //currentCell.setType(CellType.MAZE)
         maze.actors.add(currentCell)
         currentCell.actors.add(maze)
+        currentCell.actors.add(Actor(FLOOR, "floor${currentCell.x}:${currentCell.y}", currentCell.x, currentCell.y))
         location.board[currentCell.y]!![currentCell.x] = currentCell
         destinations = findAdjacentRegions(currentCell, location.board, notConnected)
         if (destinations.isEmpty()) {

@@ -120,6 +120,10 @@ class LocationGeneratorTest {
         assert(loc3x1.actors.count { it.type == REGION } == 3, { "should contain 2 rooms and 1 maze" })
         assert(loc3x1.actors.count { it.type == GATE } == 2, { "should contain 2 gates" })
         assert(loc3x1.actors.size == 5, { "should not contain anything else" })
+        // check that there are floor tiles
+        (0..2).forEach {
+            assert(loc3x1.board[0]!![it]!!.actors.any { it.type == FLOOR }, { "FLOOR tile not generated at 0:$it" })
+        }
     }
 
     @Test
