@@ -141,6 +141,12 @@ class LocationGeneratorTest {
         assert(loc4x1.actors.count { it.type == REGION } == 3, { "should contain 2 rooms and 1 maze" })
         assert(loc4x1.actors.count { it.type == GATE } == 2, { "should contain 2 gates" })
         assert(loc4x1.actors.size == 5, { "should not contain anything else" })
+        // also check that objects in cells have proper coordinates
+        val row = loc4x1.board[0]!!
+        row.forEachIndexed { x, cell ->
+            cell!!.actors.filter { it.type == FLOOR }.forEach { assert(it.x == x, { "Cell coordinates are wrong, expected:actual ($x, ${it.x})" }) }
+        }
+
     }
 
     /*

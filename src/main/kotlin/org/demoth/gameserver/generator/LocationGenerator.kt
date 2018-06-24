@@ -52,7 +52,7 @@ private fun formRectangleRoom(board: Board, width: Int, height: Int, roomX: Int,
         (0 until height).forEach { y ->
             val cell = Actor(CELL, "", roomX + x, roomY + y)
             cell.actors.add(region)
-            cell.actors.add(Actor(FLOOR, x = x, y = y))
+            cell.actors.add(Actor(FLOOR, x = roomX + x, y = roomY + y))
             region.actors.add(cell)
             board[roomY + y]!![roomX + x] = cell
         }

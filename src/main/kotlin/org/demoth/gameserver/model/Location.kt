@@ -89,7 +89,7 @@ class Location(var board: Board) : Actor(ActorType.LOCATION) {
         (up..down).forEach { y ->
             (left..right).forEach { x ->
                 board[y]!![x]?.actors?.let {
-                    result.addAll(it)
+                    it.filter { it.type in setOf(ActorType.FLOOR, ActorType.CREATURE) }.forEach { result.add(it) }
                 }
             }
         }
