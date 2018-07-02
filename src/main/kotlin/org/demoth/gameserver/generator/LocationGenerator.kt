@@ -112,7 +112,8 @@ private fun connectRegions(location: Location, r: RandomI, notConnected: Mutable
     while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
         maze.cells.add(currentCell)
         currentCell.region = maze
-        val floor = Actor(FLOOR, "floor${currentCell.x}:${currentCell.y}")
+        val floor = Actor(FLOOR)
+        floor.name = "floor${currentCell.x}:${currentCell.y}"
         floor.cell = currentCell
         currentCell.actors.add(floor)
         location.board[currentCell.y]!![currentCell.x] = currentCell

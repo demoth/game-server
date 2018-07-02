@@ -9,9 +9,12 @@ data class Cell(
         val x: Int,
         val y: Int,
         var region: Region,
-        val id: String = IdGenerator.newUUID(),
         val actors: MutableCollection<Actor> = linkedSetOf(),
-        var direction: Direction = Direction.NONE) {
+        var direction: Direction = Direction.NONE) : Entity() {
+
+    override fun update() {
+        actors.forEach { it.update() }
+    }
 
     init {
         region.cells.add(this)

@@ -6,37 +6,34 @@ import org.demoth.gameserver.api.messaging.Movement
 import org.demoth.gameserver.api.messaging.StateChangeData
 import org.demoth.gameserver.api.messaging.Update
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
-
-// todo make something better
-object IdGenerator {
-    private val current = AtomicLong()
-    fun newUUID(): String {
-        return current.incrementAndGet().toString()
-    }
-}
 
 open class Actor(
         val type: ActorType,
-        var name: String = "",
-        val id: String = IdGenerator.newUUID(),
-        var onUpdate: (() -> Unit)? = null,
-        val properties: EnumMap<PropertyLong, Long> = EnumMap<PropertyLong, Long>(PropertyLong::class.java)) {
+        val properties: EnumMap<PropertyLong, Long> = EnumMap<PropertyLong, Long>(PropertyLong::class.java),
+        var onUpdate: (() -> Unit)? = null)
+    : Entity() {
 
     // updates accumulated during current frame
     private val updates = ArrayList<Update>()
 
     // common properties
-    lateinit var cell: Cell
+    var cell: Cell? = null
+
+    val actors: MutableList<Actor> = ArrayList()
+
+    override fun update() {
+        onUpdate?.invoke()
+        actors.forEach { it.update() }
+    }
 
     /**
      * Move actor to specific position. Network updates will be generated.
      * Used to move objects during game.
      */
     fun move(cell: Cell) {
-        this.cell.actors.remove(this)
+        this.cell?.actors?.remove(this)
         this.cell = cell
-        this.cell.actors.add(this)
+        cell.actors.add(this)
         updates.add(Movement(id, cell.x, cell.y))
     }
 
@@ -46,26 +43,17 @@ open class Actor(
             field = value
         }
 
-    val actors: MutableList<Actor> = ArrayList()
-
     private fun updateField(field: String, newValue: Int, oldValue: Int) {
         if (newValue != oldValue)
             updates.add(StateChangeData(id, field, newValue.toString()))
     }
 
-    fun updateTree(visited: MutableCollection<String>) {
-        onUpdate?.invoke()
-        actors.filter { visited.add(it.id) }
-                .forEach { it.updateTree(visited) }
-    }
-
-    protected fun collectResults(results: MutableCollection<Update>, visited: MutableCollection<String>) {
+    fun collectResults(results: MutableCollection<Update>, visited: MutableCollection<String>) {
         results.addAll(updates)
         updates.clear()
         actors.filter { visited.add(it.id) }
                 .forEach { it.collectResults(results, visited) }
     }
-
 
     fun set(key: PropertyLong, value: Long?) {
         val oldValue = properties.put(key, value)

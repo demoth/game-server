@@ -46,7 +46,7 @@ class LocationGeneratorTest {
     @Test
     fun `test 1x1 with no rooms`() {
         val loc1x1 = generateLocation(1, 1, JavaRandom(), 0, 1, 1, 1, 1)
-        assert(loc1x1.actors.size == 0)
+        assert(loc1x1.regions.isEmpty())
     }
 
     @Test
@@ -118,7 +118,7 @@ class LocationGeneratorTest {
         // check that there are floor tiles
         (0..2).forEachIndexed { x, it ->
             assert(loc3x1.board[0]!![it]!!.actors.all { it.type == FLOOR }, { "FLOOR tile not generated at 0:$it" })
-            assert(loc3x1.board[0]!![it]!!.actors.all { it.cell.x == x }, { "FLOOR tile cell is not set:$it" })
+            assert(loc3x1.board[0]!![it]!!.actors.all { it.cell?.x == x }, { "FLOOR tile cell is not set:$it" })
         }
     }
 

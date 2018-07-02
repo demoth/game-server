@@ -69,10 +69,13 @@ open class LocationWorkerManager {
                             return@filter true
                         }
                     }
-                    if (Math.abs(message.x - player.cell.x) > player.sightRadius)
-                        return@filter false
-                    if (Math.abs(message.y - player.cell.y) > player.sightRadius)
-                        return@filter false
+                    val cell = player.cell
+                    if (cell != null) {
+                        if (Math.abs(message.x - cell.x) > player.sightRadius)
+                            return@filter false
+                        if (Math.abs(message.y - cell.y) > player.sightRadius)
+                            return@filter false
+                    }
 
                     // todo: think about caching
                     val key = message.x.toString() + ":" + message.y

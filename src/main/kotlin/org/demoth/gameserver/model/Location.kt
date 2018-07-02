@@ -17,7 +17,7 @@ class Location(
         var board: Board,
         val regions: MutableCollection<Region> = mutableListOf(),
         val gates: MutableCollection<Gate> = mutableListOf()
-) : Actor(ActorType.LOCATION) {
+) : Entity() {
 
     companion object {
         val LOG = LoggerFactory.getLogger(Location::class.java)!!
@@ -36,21 +36,38 @@ class Location(
                 cell?.actors?.forEach {
                     it.cell = cell
                 }
-                //cell?.let { actors.add(it) }
             }
+        }
+    }
+
+    override fun update() {
+        regions.forEach {
+            it.update()
         }
     }
 
     fun updateLocation(): List<Update> {
         val result = ArrayList<Update>()
         // invoke onUpdate() callback on the whole tree
-        updateTree(TreeSet())
+        regions.forEach {
+            it.cells.forEach {
+                it.actors.forEach {
+                    it.update()
+                }
+            }
+        }
         // process requests for actors
         performCommands()
         // get the results of above updates,
         // there only are state changes (for now).
         // all appear/disappear data is filled below
-        collectResults(result, TreeSet())
+        regions.forEach {
+            it.cells.forEach {
+                it.actors.forEach {
+                    it.collectResults(result, TreeSet())
+                }
+            }
+        }
         // for each player:
         // 1 get player sight (visible objects)
         // 2 compare with player.sightLastFrame (calculate appear/disappear)
@@ -66,7 +83,11 @@ class Location(
                 sightLastFrame.add(actor.id)
                 if (!player.sightLastFrame.contains(actor.id)) {
                     // send appear data
-                    appeared.add(AppearData(actor.type.toString(), actor.id, actor.cell.x, actor.cell.y))
+                    val cell = actor.cell
+                    if (cell != null)
+                        appeared.add(AppearData(actor.type.toString(), actor.id, cell.x, cell.y))
+                    else
+                        LOG.error("Actor(${actor.id}) has no position!")
                 } else {
                     // do not send disappear data
                     player.sightLastFrame.remove(actor.id)
@@ -86,12 +107,13 @@ class Location(
 
     private fun getPlayerSight(player: Player, board: Board): Set<Actor> {
         // todo: add hook to encapsulate getPlayerSight() game logic
+        val cell = player.cell ?: return Collections.emptySet()
         val result = HashSet<Actor>()
         val sightRadius = player.sightRadius
-        val left = max(0, player.cell.x - sightRadius)
-        val up = max(0, player.cell.y - sightRadius)
-        val right = min(board[0]!!.size - 1, player.cell.x + sightRadius)
-        val down = min(board.size - 1, player.cell.y + sightRadius)
+        val left = max(0, cell.x - sightRadius)
+        val up = max(0, cell.y - sightRadius)
+        val right = min(board[0]!!.size - 1, cell.x + sightRadius)
+        val down = min(board.size - 1, cell.y + sightRadius)
         (up..down).forEach { y ->
             (left..right).forEach { x ->
                 board[y]!![x]?.actors?.let {
@@ -121,7 +143,7 @@ class Location(
                 }
 
                 LOG.debug("executing: $command")
-                LOG.debug("player pos before: ${player.cell.x}:${player.cell.y}")
+                LOG.debug("player pos before: ${player.cell?.x}:${player.cell?.y}")
                 if (command is MoveAction) {
                     when (command.direction) {
                         "n" -> move(player, 0, -1)
@@ -130,14 +152,15 @@ class Location(
                         "w" -> move(player, -1, 0)
                     }
                 }
-                LOG.debug("player pos after: ${player.cell.x}:${player.cell.y}")
+                LOG.debug("player pos after: ${player.cell?.x}:${player.cell?.y}")
             }
         }
     }
 
     fun move(actor: Actor, xDelta: Int, yDelta: Int) {
-        val newX = actor.cell.x + xDelta
-        val newY = actor.cell.y + yDelta
+        val cell = actor.cell ?: return
+        val newX = cell.x + xDelta
+        val newY = cell.y + yDelta
         if (newX < 0 || newY < 0
                 || newX >= board[0]!!.size
                 || newY >= board.size
@@ -151,10 +174,9 @@ class Location(
         if (actor is Player) {
             players.add(actor)
         }
-        actors.add(actor)
         checkActorPosition(x, y)
         actor.cell = board[y]!![x]!!
-        actor.cell.actors.add(actor)
+        actor.cell?.actors?.add(actor)
     }
 
     private fun checkActorPosition(x: Int, y: Int) {
@@ -167,10 +189,12 @@ class Location(
         if (actor is Player) {
             players.remove(actor)
         }
-        actors.remove(actor)
-        checkActorPosition(actor.cell.x, actor.cell.y)
-        board[actor.cell.y]!![actor.cell.x]!!.actors.remove(actor)
-        // FIXME: actor still has a link to cell
+        val cell = actor.cell
+        if (cell != null) {
+            checkActorPosition(cell.x, cell.y)
+            board[cell.y]!![cell.x]!!.actors.remove(actor)
+            actor.cell = null
+        }
     }
 
 }
