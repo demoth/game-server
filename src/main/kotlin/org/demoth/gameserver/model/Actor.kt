@@ -19,8 +19,6 @@ object IdGenerator {
 open class Actor(
         val type: ActorType,
         var name: String = "",
-        x: Int = 0,
-        y: Int = 0,
         val id: String = IdGenerator.newUUID(),
         var onUpdate: (() -> Unit)? = null,
         val properties: EnumMap<PropertyLong, Long> = EnumMap<PropertyLong, Long>(PropertyLong::class.java)) {
@@ -49,10 +47,6 @@ open class Actor(
         }
 
     val actors: MutableList<Actor> = ArrayList()
-
-    fun clearUpdates() {
-        updates.clear()
-    }
 
     private fun updateField(field: String, newValue: Int, oldValue: Int) {
         if (newValue != oldValue)

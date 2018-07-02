@@ -5,6 +5,8 @@ import org.demoth.gameserver.model.*
 import java.lang.Integer.min
 import java.util.*
 
+private val empty: Region = Region()
+
 fun generateLocation(width: Int, height: Int, r: RandomI,
                      roomTries: Int = 10,
                      roomWidthMin: Int = 3, roomWidthMax: Int = 7,
@@ -16,6 +18,9 @@ fun generateLocation(width: Int, height: Int, r: RandomI,
         generateRoom(location, r, roomWidthMin, roomWidthMax, roomHeightMin, roomHeightMax)
     }
     connectRegionsByTwoSets(location, r, mazeStraightness)
+
+    // FIXME: get rid of marker object
+    empty.cells.clear()
     return location
 }
 
@@ -49,8 +54,7 @@ private fun formRectangleRoom(board: Board, width: Int, height: Int, roomX: Int,
         (0 until height).forEach { y ->
             val cellX = roomX + x
             val cellY = roomY + y
-            val cell = Cell(cellX, cellY, mutableListOf(Actor(FLOOR)))
-            cell.region = room
+            val cell = Cell(cellX, cellY, room, actors = mutableListOf(Actor(FLOOR)))
             room.cells.add(cell)
             cell.actors.forEach { it.cell = cell }
             board[cellY]!![cellX] = cell
@@ -108,7 +112,7 @@ private fun connectRegions(location: Location, r: RandomI, notConnected: Mutable
     while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
         maze.cells.add(currentCell)
         currentCell.region = maze
-        val floor = Actor(FLOOR, "floor${currentCell.x}:${currentCell.y}", currentCell.x, currentCell.y)
+        val floor = Actor(FLOOR, "floor${currentCell.x}:${currentCell.y}")
         floor.cell = currentCell
         currentCell.actors.add(floor)
         location.board[currentCell.y]!![currentCell.x] = currentCell
@@ -238,7 +242,7 @@ private fun insideStage(cell: Cell, board: Board): Boolean {
 
 private fun getUpDownLeftRightCells(x: Int, y: Int): List<Cell> {
     val result = ArrayList<Cell>()
-    val c = Cell(x, y)
+    val c = Cell(x, y, empty)
     result.add(up(c))
     result.add(down(c))
     result.add(left(c))
@@ -247,19 +251,19 @@ private fun getUpDownLeftRightCells(x: Int, y: Int): List<Cell> {
 }
 
 private fun up(c: Cell): Cell {
-    return Cell(c.x, c.y - 1, direction = Direction.UP)
+    return Cell(c.x, c.y - 1, empty, direction = Direction.UP)
 }
 
 private fun left(c: Cell): Cell {
-    return Cell(c.x - 1, c.y, direction = Direction.LEFT)
+    return Cell(c.x - 1, c.y, empty, direction = Direction.LEFT)
 }
 
 private fun down(c: Cell): Cell {
-    return Cell(c.x, c.y + 1, direction = Direction.DOWN)
+    return Cell(c.x, c.y + 1, empty, direction = Direction.DOWN)
 }
 
 private fun right(c: Cell): Cell {
-    return Cell(c.x + 1, c.y, direction = Direction.RIGHT)
+    return Cell(c.x + 1, c.y, empty, direction = Direction.RIGHT)
 }
 
 private fun stageHasEmptyCells(stage: Location): Boolean {

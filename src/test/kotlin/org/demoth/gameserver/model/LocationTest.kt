@@ -6,10 +6,11 @@ import org.demoth.gameserver.api.messaging.*
 import org.junit.Test
 
 private fun createSampleLocation(width: Int = 1, height: Int = 1): Location {
+    val room = Region()
     return Location(Board(height, { y ->
         val row = mutableListOf<Cell>()
         (0 until width).forEach { x ->
-            row.add(Cell(x, y, mutableListOf(Actor(ActorType.FLOOR))))
+            row.add(Cell(x, y, room, actors = mutableListOf(Actor(ActorType.FLOOR))))
         }
         row.toTypedArray()
     }))
@@ -65,7 +66,7 @@ class LocationTest {
 
     @Test
     fun `test move actor`() {
-        val l = createSampleLocation(width = 2)
+        val l = createSampleLocation(2)
         val actor = Actor(ActorType.CREATURE)
         l.add(actor, 0, 0)
         l.move(actor, 1, 0)
@@ -136,7 +137,7 @@ class LocationTest {
 
     @Test
     fun `test add player add actor`() {
-        val l = createSampleLocation(width = 3)
+        val l = createSampleLocation(3)
         val player = Player()
         l.add(player, 0, 0)
         l.add(Actor(ActorType.CREATURE), 1, 0)
@@ -146,7 +147,7 @@ class LocationTest {
 
     @Test
     fun `test add player add actor second update`() {
-        val l = createSampleLocation(width = 2)
+        val l = createSampleLocation(2)
         val player = Player()
         l.add(player, 0, 0)
         l.add(Actor(ActorType.CREATURE), 1, 0)
@@ -160,7 +161,7 @@ class LocationTest {
 
     @Test
     fun `test add player add actor remove actor`() {
-        val l = createSampleLocation(width = 2)
+        val l = createSampleLocation(2)
         val player = Player()
         l.add(player, 0, 0)
         val actor = Actor(ActorType.CREATURE)
@@ -177,7 +178,7 @@ class LocationTest {
 
     @Test
     fun `test add player add actor move out of view`() {
-        val l = createSampleLocation(width = 3)
+        val l = createSampleLocation(3)
         val player = Player()
         l.add(player, 0, 0)
         val actor = Actor(ActorType.CREATURE)
@@ -196,7 +197,7 @@ class LocationTest {
 
     @Test
     fun `test player sees an actor come into view`() {
-        val l = createSampleLocation(width = 3)
+        val l = createSampleLocation(3)
         val player = Player()
         l.add(player, 0, 0)
         val actor = Actor(ActorType.CREATURE)
@@ -215,7 +216,7 @@ class LocationTest {
 
     @Test
     fun `test player sees an actor appears`() {
-        val l = createSampleLocation(width = 2)
+        val l = createSampleLocation(2)
         val player = Player()
         l.add(player, 0, 0)
         l.updateLocation()
@@ -232,7 +233,7 @@ class LocationTest {
 
     @Test
     fun `test player command move`() {
-        val l = createSampleLocation(width = 2)
+        val l = createSampleLocation(2)
         val player = Player()
         l.add(player, 0, 0)
         player.enqueueRequest(MoveAction("e"))
@@ -245,7 +246,7 @@ class LocationTest {
 
     @Test
     fun `test player command move change visible area`() {
-        val l = createSampleLocation(width = 4)
+        val l = createSampleLocation(4)
         val player = Player()
         l.add(player, 1, 0)
         l.updateLocation()
@@ -278,7 +279,7 @@ class LocationTest {
 
     @Test
     fun `test player in location with null cell`() {
-        val l = Location(arrayOf(arrayOf(Cell(0, 0), null)))
+        val l = Location(arrayOf(arrayOf(Cell(0, 0, Region()), null)))
         val player = Player()
         l.add(player, 0, 0)
         l.updateLocation()
@@ -286,7 +287,7 @@ class LocationTest {
 
     @Test
     fun `test player moves location with null cell`() {
-        val l = Location(arrayOf(arrayOf(Cell(0, 0), null)))
+        val l = Location(arrayOf(arrayOf(Cell(0, 0, Region()), null)))
         val player = Player()
         l.add(player, 0, 0)
         l.updateLocation()

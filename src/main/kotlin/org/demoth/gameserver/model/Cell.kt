@@ -8,16 +8,27 @@ enum class Direction {
 data class Cell(
         val x: Int,
         val y: Int,
-        val actors: MutableCollection<Actor> = mutableListOf(),
+        var region: Region,
+        val id: String = IdGenerator.newUUID(),
+        val actors: MutableCollection<Actor> = linkedSetOf(),
         var direction: Direction = Direction.NONE) {
 
-    lateinit var region: Region
-
     init {
+        region.cells.add(this)
         actors.forEach { it.cell = this }
     }
 
     override fun toString(): String {
         return "Cell($x:$y)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is Cell)
+            id == other
+        else false
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 }
