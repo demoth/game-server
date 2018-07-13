@@ -30,11 +30,18 @@ class Player : Actor(ActorType.CREATURE) {
 
     var session: WebSocketSession? = null
 
-    val update: Update
-        get() = results.take()
-
     fun enqueueRequest(command: Message) {
         commands.add(command)
+    }
+
+    fun getResults(max: Int): List<Update> {
+        return if (results.size > 0) {
+            val updates = ArrayList<Update>()
+            results.drainTo(updates, max)
+            updates
+        } else {
+            listOf(results.take())
+        }
     }
 
     fun enqueueResponse(response: Update) {

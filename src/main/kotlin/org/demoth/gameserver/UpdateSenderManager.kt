@@ -24,8 +24,9 @@ open class UpdateSenderManager {
             LOG.info("Started sending updates for player '{}'", player.name)
             while (true) {
                 try {
-                    val change = player.update
-                    val update = UpdateMessage(listOf(change))
+                    val change = player.getResults(16)
+                    LOG.debug("Sending ${change.size} updates")
+                    val update = UpdateMessage(change)
                     player.session!!.sendMessage(TextMessage(mapper.writeValueAsString(update)))
                 } catch (e: IOException) {
                     LOG.error("Error while sending updates", e)
