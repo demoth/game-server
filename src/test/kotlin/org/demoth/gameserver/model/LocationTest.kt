@@ -3,29 +3,30 @@ package org.demoth.gameserver.model
 import org.demoth.gameserver.api.ActorType
 import org.demoth.gameserver.api.PropertyLong.HEALTH
 import org.demoth.gameserver.api.messaging.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 private fun createSampleLocation(width: Int = 1, height: Int = 1): Location {
     val room = Region()
-    return Location(Board(height, { y ->
+    return Location(Board(height) { y ->
         val row = mutableListOf<Cell>()
         (0 until width).forEach { x ->
             row.add(Cell(x, y, room, actors = mutableListOf(Actor(ActorType.FLOOR))))
         }
         row.toTypedArray()
-    }), regions = mutableSetOf(room))
+    }, regions = mutableSetOf(room))
 }
 
 class LocationTest {
 
-    @Test(expected = IllegalStateException::class)
+    @Test
     fun `test empty board`() {
-        Location(emptyArray())
+        assertThrows<IllegalStateException> { Location(emptyArray()) }
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test
     fun `test board with empty rows`() {
-        Location(arrayOf(emptyArray(), emptyArray()))
+        assertThrows<IllegalStateException> { Location(arrayOf(emptyArray(), emptyArray())) }
     }
 
     @Test

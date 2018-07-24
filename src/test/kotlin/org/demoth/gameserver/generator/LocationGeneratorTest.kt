@@ -1,7 +1,7 @@
 package org.demoth.gameserver.generator
 
 import org.demoth.gameserver.api.ActorType.FLOOR
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class LocationGeneratorTest {
 
