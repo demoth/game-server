@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap
 open class LocationWorkerManager {
 
     private val instances = ConcurrentHashMap<Location, Thread>()
-
     fun runLocation(location: Location) {
         val worker = Thread {
             LOG.debug("Start updating {}", location.name)
@@ -26,11 +25,11 @@ open class LocationWorkerManager {
                     return@Thread
                 }
                 val updates = location.updateLocation()
-                val allPlayersReady = location.players.none({ it.idle() })
+                val allPlayersReady = location.players.none { it.idle() }
                 // todo: make configurable
-                val sleep = if (allPlayersReady) 100 else 100
+                val sleepDuration = if (allPlayersReady) 100L else 2000L
                 try {
-                    Thread.sleep(sleep.toLong())
+                    Thread.sleep(sleepDuration)
                 } catch (e: InterruptedException) {
                     LOG.debug("Finishing working thread: {}", Thread.currentThread().name)
                     // todo persist location
